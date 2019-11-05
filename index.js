@@ -17,7 +17,7 @@ app.use('/messaging', middleware.checkToken, require('./routes/messaging.js'));
  */
 app.get("/", (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/html' });
-    res.write('<h1>Welcome to Charles Angels!</h1>');
+    res.write('<h1>Welcome to Charles Angels! It works</h1>');
     res.end(); //end the response
 });
 
