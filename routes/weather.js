@@ -11,6 +11,9 @@ router.use(bodyParser.json());
 //request module is needed to make a request to a web service
 const request = require('request');
 
+//Create connection to Heroku Database
+let db = require('../utilities/utils').db;
+
 
 router.post("/latLon", (req, res) => {
     // for info on use of tilde (`) making a String literal, see below. 
