@@ -82,7 +82,28 @@ router.post("/send", (req, res) => {
         });
 });
 
-router.get("/get", (req, res) => {
+router.post("/get", (req, res) => {
+    let email = req.body['email'];
+    if (!email) {
+        res.send({
+            success: false,
+            error: "email is not supplied"
+        });
+        return;
+    }
+
+    let query = "(SELECT Nickname, Lat, Long, ZIP FROM Members WHERE email=$1)";
+    db.manyOrNone(query, [email])
+        .then((rows) => {
+            res.send({
+                messages: rows
+            })
+        }).catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
 
 });
 
