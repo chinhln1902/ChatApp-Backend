@@ -50,6 +50,17 @@ CREATE TABLE Locations (PrimaryKey SERIAL PRIMARY KEY,
                         FOREIGN KEY(MemberID) REFERENCES Members(MemberID)
 );
 
+-- DROP TABLE IF EXISTS Locations;
+-- CREATE TABLE Locations (PrimaryKey SERIAL PRIMARY KEY,
+--                         MemberID INT,
+--                         City VARCHAR(100),
+--                         Country VARCHAR(100),
+--                         Lat DECIMAL,
+--                         Lon DECIMAL,
+--                         Zip INT,
+--                         FOREIGN KEY(MemberID) REFERENCES Members(MemberID)
+-- );
+
 DROP TABLE IF EXISTS Demo;
 CREATE TABLE Demo (DemoID SERIAL PRIMARY KEY,
                         Text VARCHAR(255)
