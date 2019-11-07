@@ -51,4 +51,39 @@ router.post("/zip", (req, res) => {
     });    
 });
 
+router.post("/send", (req, res) => {
+    let email = req.body['email'];
+    let city = req.body['city'];
+    let country = req.body['country'];
+    let lat = req.body['lat'];
+    let lon = req.body['lon'];
+    // let zip = req.body['zip'];
+    if (!email || !city || !country || !lat || !lon
+        //  || !zip
+         ) {
+        res.send({
+            success: false,
+            error: "email, city, country, lat, lon" +
+            // ", zip"
+            "not supplied"
+        });
+        return;
+    }
+
+    //add zip
+    let insert = "INSERT INTO Messages(MemberID, Nickname, Lat, Long) " //ZIP
+        + "VALUES (SELECT MemberID FROM Members WHERE email=$1, $2, $3, $4)";//$5
+        db.none(insert, [chatId, city + ", " + country,  message, email])//zip
+        .catch((err) => {
+            res.send({
+                success: false,
+                error: err,
+            });
+        });
+});
+
+router.get("/get", (req, res) => {
+
+});
+
 module.exports = router;
