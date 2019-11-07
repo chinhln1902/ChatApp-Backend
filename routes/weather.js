@@ -73,13 +73,35 @@ router.post("/send", (req, res) => {
         return;
     }
 
-    let query = "SELECT MemberID FROM Members WHERE email=$1";
-    db.manyOrNone(query, [email])
-        .then((rows) => {
-            //add zip
-            let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
-            + "VALUES ($1, $2, $3, $4)";//$5
-            db.none(insert, [rows[0].body['MemberID'], city + ", " + country,  lat, lon])//zip
+    // let query = "SELECT MemberID FROM Members WHERE email=$1";
+    // db.manyOrNone(query, [email])
+    //     .then((rows) => {
+    //         res.send({
+    //             messages: rows
+    //         })
+    //         //add zip
+    //         let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
+    //         + "VALUES ($1, $2, $3, $4)";//$5
+    //         db.none(insert, [rows[0].body['MemberID'], city + ", " + country,  lat, lon])//zip
+    //             .catch((err) => {
+    //                 res.send({
+    //                     success: false,
+    //                     errorMessage: "INSERT error",
+    //                     error: err
+    //                 });
+    //             });
+    //     }).catch((err) => {
+    //         res.send({
+    //             success: false,
+    //             errorMessage: "SELECT error email:" + email,
+    //             error: err
+    //         })
+    //     });
+
+    let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
+            + "SELECT MemberID, $2, $3, $4" //$5
+            + "FROM Members WHERE email=$1"
+            db.none(insert, [email, city + ", " + country,  lat, lon])//zip
                 .catch((err) => {
                     res.send({
                         success: false,
@@ -87,13 +109,6 @@ router.post("/send", (req, res) => {
                         error: err
                     });
                 });
-        }).catch((err) => {
-            res.send({
-                success: false,
-                errorMessage: "SELECT error email:" + email,
-                error: err
-            })
-        });
 
 });
 
