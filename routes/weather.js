@@ -83,12 +83,14 @@ router.post("/send", (req, res) => {
                 .catch((err) => {
                     res.send({
                         success: false,
-                        error: err,
+                        errorMessage: "INSERT error",
+                        error: err
                     });
                 });
         }).catch((err) => {
             res.send({
                 success: false,
+                errorMessage: "SELECT error",
                 error: err
             })
         });
