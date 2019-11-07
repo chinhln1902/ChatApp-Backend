@@ -74,7 +74,7 @@ router.post("/send", (req, res) => {
     }
 
     let query = "SELECT MemberID FROM Members WHERE email=$1";
-    db.manyOrNone(query, email)
+    db.manyOrNone(query, [email])
         .then((rows) => {
             //add zip
             let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
@@ -90,7 +90,7 @@ router.post("/send", (req, res) => {
         }).catch((err) => {
             res.send({
                 success: false,
-                errorMessage: "SELECT error",
+                errorMessage: "SELECT error email:" + email,
                 error: err
             })
         });
