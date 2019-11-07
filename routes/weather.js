@@ -73,16 +73,26 @@ router.post("/send", (req, res) => {
         return;
     }
 
-    //add zip
-    let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
-        + "VALUES (SELECT MemberID FROM Members WHERE email=$1, $2, $3, $4)";//$5
-        db.none(insert, [chatId, city + ", " + country,  message, email])//zip
-        .catch((err) => {
+    let query = "SELECT MemberID FROM Members WHERE email=$1";
+    db.manyOrNone(query, [email])
+        .then((rows) => {
+            //add zip
+            let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
+            + "VALUES ($1, $2, $3, $4)";//$5
+            db.none(insert, [rows[0].body['MemberID'], city + ", " + country,  lat, lon])//zip
+                .catch((err) => {
+                    res.send({
+                        success: false,
+                        error: err,
+                    });
+                });
+        }).catch((err) => {
             res.send({
                 success: false,
-                error: err,
-            });
+                error: err
+            })
         });
+
 });
 
 router.post("/get", (req, res) => {
@@ -95,8 +105,8 @@ router.post("/get", (req, res) => {
         return;
     }
 
-    let query = "(SELECT Nickname, Lat, Long, ZIP FROM Locations JOIN Members ON " + 
-    "Members.MemberID = Locations.MemberID WHERE email=$1)";
+    let query = "SELECT Nickname, Lat, Long, ZIP FROM Locations JOIN Members ON " + 
+    "Members.MemberID = Locations.MemberID WHERE email=$1";
     db.manyOrNone(query, [email])
         .then((rows) => {
             res.send({
