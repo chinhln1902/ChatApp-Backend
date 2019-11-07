@@ -71,7 +71,7 @@ router.post("/send", (req, res) => {
     }
 
     //add zip
-    let insert = "INSERT INTO Messages(MemberID, Nickname, Lat, Long) " //ZIP
+    let insert = "INSERT INTO Location (MemberID, Nickname, Lat, Long) " //ZIP
         + "VALUES (SELECT MemberID FROM Members WHERE email=$1, $2, $3, $4)";//$5
         db.none(insert, [chatId, city + ", " + country,  message, email])//zip
         .catch((err) => {
