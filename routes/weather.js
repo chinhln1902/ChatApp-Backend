@@ -95,7 +95,7 @@ router.post("/get", (req, res) => {
         return;
     }
 
-    let query = "(SELECT Nickname, Lat, Long, ZIP FROM Members WHERE email=$1)";
+    let query = "(SELECT Nickname, Lat, Long, ZIP FROM Locations WHERE email=$1)";
     db.manyOrNone(query, [email])
         .then((rows) => {
             res.send({
