@@ -1,4 +1,6 @@
 const OPW_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
+const WB_API_KEY = process.env.WEATHERBIT_API_KEY;
+const DS_API_KEY = process.env.DARK_SKY_API_KEY;
 //express is the framework we're going to use to handle requests
 const express = require('express');
 //Create a new instance of express router
@@ -25,11 +27,12 @@ router.post("/latLon", (req, res) => {
     //When this web service gets a request, make a request to the Phish Web service
     request(url, function (error, _response, body) {
         if (error) {
-            res.send({
-                success: false,
-                errorMessage: "lat: " + lat + ", lon: " + lon + ", key: " + OPW_API_KEY + ", url: " + url,
-                error: error
-            });
+            res.send(error);
+            // res.send({
+            //     success: false,
+            //     errorMessage: "lat: " + lat + ", lon: " + lon + ", key: " + OPW_API_KEY + ", url: " + url,
+            //     error: error
+            // });
         } else {
             // pass on everything (try out each of these in Postman to see the difference)
             // res.send(response);
@@ -40,6 +43,33 @@ router.post("/latLon", (req, res) => {
     });    
 });
 
+router.post("/latLon/24h", (req, res) => {
+    let lat = req.body['lat'];
+    let lon =  req.body['lon'];
+    let url = `https://api.darksky.net/forecast/${DS_API_KEY}/${lat},${lon}`;
+
+    request(url, function (error, _response, body) {
+        if (error) {
+            res.send(error);
+        } else {
+            res.send(body);
+        }
+    });    
+});
+
+router.post("/latLon/10d", (req, res) => {
+    let lat = req.body['lat'];
+    let lon =  req.body['lon'];
+    let url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${lat}&lon=${lon}&key=${WB_API_KEY}`;
+
+    request(url, function (error, _response, body) {
+        if (error) {
+            res.send(error);
+        } else {
+            res.send(body);
+        }
+    });    
+});
 
 router.post("/zip", (req, res) => {
     let zip = req.body['zip'];
@@ -53,6 +83,23 @@ router.post("/zip", (req, res) => {
             // res.send(response);
             
             // or just pass on the body
+            res.send(body);
+        }
+    });    
+});
+
+//
+//TODO 24h
+//
+
+router.post("/zip/10d", (req, res) => {
+    let zip = req.body['zip'];
+    let url = `https://api.weatherbit.io/v2.0/forecast/daily?postal_code=${zip}&key=${WB_API_KEY}`;
+
+    request(url, function (error, _response, body) {
+        if (error) {
+            res.send(error);
+        } else {
             res.send(body);
         }
     });    
