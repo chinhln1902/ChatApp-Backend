@@ -68,7 +68,7 @@ router.post("/send", (req, res) => {
             success: false,
             error: "email, city, country, lat, lon " +
             // ", zip"
-            "not supplied" + email + city + country + lat + lon
+            "not supplied" + email + " " + city + " " + country + " " + lat + " " + lon
         });
         return;
     }
