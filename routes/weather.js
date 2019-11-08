@@ -61,12 +61,12 @@ router.post("/send", (req, res) => {
     let lat = req.body['lat'];
     let lon = req.body['lon'];
     // let zip = req.body['zip'];
-    if (!email || !city || !country || !lat || !lon
-        //  || !zip
+    if (!email || !city || !lat || !lon
+        //  || !zip || !country
          ) {
         res.send({
             success: false,
-            error: "email, city, country, lat, lon" +
+            error: "email, city, country, lat, lon " +
             // ", zip"
             "not supplied"
         });
