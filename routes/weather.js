@@ -66,12 +66,23 @@ router.post("/send", (req, res) => {
          ) {
         res.send({
             success: false,
-            error: "email" +  email +  " city" + city + " country" + country + " lat" + lat + " lon" + lon +
+            error: "email:" +  email +  " city:" + city + " country:" + country + " lat:" + lat + " lon:" + lon + " " +
             !email + !lat + !lon + !city + 
             // ", zip"
-            "not supplied"
+            " not supplied"
         });
-        return;
+    } else {
+        let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
+        + "SELECT MemberID, $2, $3, $4" //$5
+        + "FROM Members WHERE email=$1"
+        db.none(insert, [email, city + ", " + country,  lat, lon])//zip
+            .catch((err) => {
+                res.send({
+                    success: false,
+                    errorMessage: "INSERT error",
+                    error: err
+                });
+            });
     }
 
     // let query = "SELECT MemberID FROM Members WHERE email=$1";
@@ -98,18 +109,6 @@ router.post("/send", (req, res) => {
     //             error: err
     //         })
     //     });
-
-    let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
-            + "SELECT MemberID, $2, $3, $4" //$5
-            + "FROM Members WHERE email=$1"
-            db.none(insert, [email, city + ", " + country,  lat, lon])//zip
-                .catch((err) => {
-                    res.send({
-                        success: false,
-                        errorMessage: "INSERT error",
-                        error: err
-                    });
-                });
 
 });
 
