@@ -76,6 +76,12 @@ router.post("/send", (req, res) => {
         + "SELECT MemberID, $2, $3, $4" //$5
         + "FROM Members WHERE email=$1"
         db.none(insert, [email, city + ", " + country,  lat, lon])//zip
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: "hi"
+                });
+            })
             .catch((err) => {
                 res.send({
                     success: false,
