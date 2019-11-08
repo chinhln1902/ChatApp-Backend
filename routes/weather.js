@@ -25,7 +25,11 @@ router.post("/latLon", (req, res) => {
     //When this web service gets a request, make a request to the Phish Web service
     request(url, function (error, _response, body) {
         if (error) {
-            res.send(error);
+            res.send({
+                success: false,
+                errorMessage: "lat: " + lat + ", lon: " + lon + ", key: " + OPW_API_KEY + ", url: " + url,
+                error: error
+            });
         } else {
             // pass on everything (try out each of these in Postman to see the difference)
             // res.send(response);
