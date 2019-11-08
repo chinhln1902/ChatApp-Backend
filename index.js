@@ -8,6 +8,7 @@ let middleware = require('./utilities/middleware');
 app.use('/login', require('./routes/login.js')); 
 app.use('/register', require('./routes/register.js')); 
 app.use('/messaging', middleware.checkToken, require('./routes/messaging.js'));
+app.use('/connections', middleware.checkToken, require('./routes/connections.js'));
 
 /*
  * Return HTML for the / end point. 
