@@ -19,8 +19,8 @@ router.post('/remove', (req, res) => {
     let query = `DELETE FROM Contacts
                 WHERE (memberId_A=$1 AND memberId_B=$2)
                 OR (memberId_B=$1 AND memberId_A=$2)`
-    db.many(query, [memberIdUser, memberIdOther])
-        .then(rows => {
+    db.none(query, [memberIdUser, memberIdOther])
+        .then(() => {
             res.send({
                 success: true,
                 message: "successfully unconnected"
@@ -46,8 +46,8 @@ router.post('/add', (req, res) => {
                 VALUES($1, $2)`
     db.none(check, [memberIdUser, memberIdOther])
         .then(() => {
-            db.one(query, [memberIdUser, memberIdOther])
-                .then(row => {
+            db.none(query, [memberIdUser, memberIdOther])
+                .then(() => {
                     res.send({
                         success: true,
                         message: "successfully connected"
@@ -95,11 +95,11 @@ router.post('/confirm', (req, res) => {
                 SET Verified=1
                 WHERE memberId_A=$2
                 AND memberId_B=$1`
-    db.one(query, [memberIdUser, memberIdOther])
-        .then((row) => {
+    db.none(query, [memberIdUser, memberIdOther])
+        .then(() => {
             res.send({
                 success: true,
-                member: row
+                message: "successfully confirmed"
             })
         }).catch((err) => {
             res.send({
@@ -115,9 +115,9 @@ router.post('/requests', (req, res) => {
     let query = `SELECT MemberId, FirstName, LastName, Username
                 FROM Members
                 INNER JOIN Contacts
-                ON MemberId=memberId_B
-                WHERE MemberId=$1
-                AND Verified<>0`
+                ON MemberId=memberId_A
+                WHERE MemberId_B=$1
+                AND Verified=0`
     db.manyOrNone(query, [memberId])
         .then((rows) => {
             res.send({
