@@ -10,61 +10,6 @@ const bodyParser = require("body-parser");
 //This allows parsing of the body of POST requests, that are encoded in JSON
 router.use(bodyParser.json());
 
-// router.post('/', (req, res) => {
-//     let email = req.body['email'];
-//     let theirPw = req.body['password'];
-//     let wasSuccessful = false;
-//     if (email && theirPw) {
-//         //Using the 'one' method means that only one row should be returned
-//         db.one('SELECT Password, Salt FROM Members WHERE Email=$1', [email])
-//             .then(row => { //If successful, run function passed into .then()
-//                 let salt = row['salt'];
-//                 //Retrieve our copy of the password
-//                 let ourSaltedHash = row['password'];
-
-//                 //Combined their password with our salt, then hash
-//                 let theirSaltedHash = getHash(theirPw, salt);
-
-//                 //Did our salted hash match their salted hash?
-//                 let wasCorrectPw = ourSaltedHash === theirSaltedHash;
-
-//                 if (wasCorrectPw) {
-//                     //credentials match. get a new JWT
-//                     let token = jwt.sign({ username: email },
-//                         config.secret,
-//                         {
-//                             expiresIn: '24h' // expires in 24 hours
-//                         }
-//                     );
-//                     //package and send the results
-//                     res.json({
-//                         success: true,
-//                         message: 'Authentication successful!',
-//                         token: token
-//                     });
-//                 } else {
-//                     //credentials dod not match
-//                     res.send({
-//                         success: false
-//                     });
-//                 }
-//             })
-//             //More than one row shouldn't be found, since table has constraint on it
-//             .catch((err) => {
-//                 //If anything happened, it wasn't successful
-//                 res.send({
-//                     success: false,
-//                     message: err
-//                 });
-//             });
-//     } else {
-//         res.send({
-//             success: false,
-//             message: 'missing credentials'
-//         });
-//     }
-// });
-
 //Get all of the messages from a chat session with id chatid
 router.post('/remove', (req, res) => {
     // let chatId = req.body['chatId'];
@@ -72,10 +17,10 @@ router.post('/remove', (req, res) => {
     let memberIdOther = req.body['memberIdOther'];
 
     let query = `DELETE FROM Contacts
-                WHERE (memberIdUser=$1 AND memberIdOther=$2)
-                OR (memberIdOther=$1 AND memberIdUser=$2)`
-    db.one(query, [memberIdUser, memberIdOther])
-        .then(row => {
+                WHERE (memberId_A=$1 AND memberId_B=$2)
+                OR (memberId_B=$1 AND memberId_A=$2)`
+    db.many(query, [memberIdUser, memberIdOther])
+        .then(rows => {
             res.send({
                 success: true,
                 message: "successfully unconnected"
@@ -95,9 +40,9 @@ router.post('/add', (req, res) => {
     let memberIdOther = req.body['memberIdOther'];
 
     let check = `SELECT * FROM Contacts
-                WHERE (memberIdUser=$1 AND memberIdOther=$2)
-                OR (memberIdUser=$2 AND memberIdOther=$1)`
-    let query = `INSERT INTO Contacts(memberIdUser, memberIdOther)
+                WHERE (memberId_A=$1 AND memberId_B=$2)
+                OR (memberId_B=$2 AND memberId_A=$1)`
+    let query = `INSERT INTO Contacts(memberId_A, memberId_B)
                 VALUES($1, $2)`
     db.none(check, [memberIdUser, memberIdOther])
         .then(() => {
@@ -170,7 +115,7 @@ router.post('/requests', (req, res) => {
     let query = `SELECT MemberId, FirstName, LastName, Username
                 FROM Members
                 INNER JOIN Contacts
-                ON MemberId=memberIdOther
+                ON MemberId=memberId_B
                 WHERE MemberId=$1
                 AND Verified<>0`
     db.manyOrNone(query, [memberId])
@@ -191,12 +136,16 @@ router.post('/getAll', (req, res) => {
     // let chatId = req.body['chatId'];
     let memberId = req.body['memberId'];
 
-    let query = `SELECT MemberID, FirstName, LastName, Username, Verification
-                FROM Contacts INNER JOIN Members
-                ON Contacts.memberIdOther=Members.MemberId
-                WHERE (Contacts.memberIdUser=$1
-                OR Contacts.memberIdOther=$1)
-                AND Contacts.Verified=1`
+    let query = `SELECT memberId, FirstName, LastName, Username
+                FROM Members
+                WHERE memberId IN (SELECT memberId_A
+                                    FROM Contacts
+                                    WHERE memberId_A <> $1
+                                    AND Verified=1)
+                OR memberId IN (SELECT memberId_B
+                                FROM Contacts
+                                WHERE memberId_B <> $1
+                                AND Verified=1)`
     db.manyOrNone(query, [memberId])
         .then((rows) => {
             res.send({
