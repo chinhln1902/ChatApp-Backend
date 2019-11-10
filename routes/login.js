@@ -36,7 +36,7 @@ router.post('/', (req, res) => {
                 //Did our salted hash match their salted hash?
                 let wasCorrectPw = ourSaltedHash === theirSaltedHash;
 
-                let verified = row['verified'];
+                let verified = row['verification'];
 
                 if (wasCorrectPw) {
                     if (verified) {
