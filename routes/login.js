@@ -24,7 +24,7 @@ router.post('/', (req, res) => {
     let wasSuccessful = false;
     if (email && theirPw) {
         //Using the 'one' method means that only one row should be returned
-        db.one('SELECT Password, Salt FROM Members WHERE Email=$1', [email])
+        db.one('SELECT MemberId, Password, Verification FROM Members WHERE Email=$1', [email])
             .then(row => { //If successful, run function passed into .then()
                 let salt = row['salt'];
                 //Retrieve our copy of the password
@@ -36,24 +36,35 @@ router.post('/', (req, res) => {
                 //Did our salted hash match their salted hash?
                 let wasCorrectPw = ourSaltedHash === theirSaltedHash;
 
+                let verified = row['verified'];
+
                 if (wasCorrectPw) {
-                    //credentials match. get a new JWT
-                    let token = jwt.sign({ username: email },
-                        config.secret,
-                        {
-                            expiresIn: '24h' // expires in 24 hours
-                        }
-                    );
-                    //package and send the results
-                    res.json({
-                        success: true,
-                        message: 'Authentication successful!',
-                        token: token
-                    });
+                    if (verified) {
+                        //credentials match. get a new JWT
+                        let token = jwt.sign({ username: email },
+                            config.secret,
+                            {
+                                expiresIn: '24h' // expires in 24 hours
+                            }
+                        );
+                        //package and send the results
+                        res.json({
+                            success: true,
+                            message: 'Authentication successful!',
+                            memberid: row['memberid'],
+                            token: token
+                        });
+                    } else {
+                        res.json({
+                            success: false,
+                            message: "not verified"
+                        });
+                    }
                 } else {
-                    //credentials dod not match
+                    //credentials did not match
                     res.send({
-                        success: false
+                        success: false,
+                        message: "password incorrect"
                     });
                 }
             })
@@ -104,6 +115,7 @@ router.post('/pushy', (req, res) => {
                             res.json({
                                 success: true,
                                 message: 'Authentication successful!',
+                                memberid: row['memberid'],
                                 token: token
                             });
                         })
