@@ -15,6 +15,8 @@ let db = require('../utilities/utils').db;
 
 let getHash = require('../utilities/utils').getHash;
 
+let randomCode = require('../utilities/utils').randomCode;
+
 let sendEmail = require('../utilities/utils').sendEmail;
 
 var router = express.Router();
@@ -41,11 +43,14 @@ router.post('/', (req, res) => {
         let salt = crypto.randomBytes(32).toString("hex");
         let salted_hash = getHash(password, salt);
 
+        let newCode = randomCode();
+
         //Use .none() since no result gets returned from an INSERT in SQL
         //We're using placeholders ($1, $2, $3) in the SQL query string to avoid SQL Injection
         //If you want to read more: https://stackoverflow.com/a/8265319
-        let params = [first, last, username, email, salted_hash, salt];
-        db.none("INSERT INTO MEMBERS(FirstName, LastName, Username, Email, Password, Salt) VALUES ($1, $2, $3, $4, $5, $6)", params)
+        let params = [first, last, username, email, salted_hash, salt, newCode];
+
+        db.none("INSERT INTO MEMBERS(FirstName, LastName, Username, Email, Password, Salt, VerifyCode) VALUES ($1, $2, $3, $4, $5, $6, $7)", params)
             .then(() => {
                 let token = jwt.sign({ username: email },
                     config.secret,
@@ -59,7 +64,13 @@ router.post('/', (req, res) => {
                     message: 'Authentication successful!',
                     token: token
                 });
-                sendEmail("uwnetid@uw.edu", email, "Welcome!", "<strong>Welcome to our app!</strong>");
+                sendEmail(email, 'Charles Angels Registration Confirmation',
+                    `Greetings from Charles Angels,\n
+                    Thank you for signing up for our services.\n
+                    Input this code to your verification on the app to continue using our services\n`
+                    + newCode +
+                    `Good morning angel!\n
+                    -Charles Angels Services Team`);
             }).catch((err) => {
                 //log the error
                 console.log(err);
