@@ -26,7 +26,7 @@ router.post("/confirm", (req, res) => {
         return;
     }
     //add the message to the database
-    let query = `SELECT VerifyCode FROM MEMBERS WHERE Email=$1 AND Verification=0`;
+    let query = `SELECT MemberId, VerifyCode FROM MEMBERS WHERE Email=$1 AND Verification=0`;
     db.one(query, [email])
         .then((row) => {
             if (row['verifycode'] == inputCode) {
@@ -34,7 +34,8 @@ router.post("/confirm", (req, res) => {
                     .then(() => {
                         res.send({
                             success: true,
-                            message: "successfully verified"
+                            message: "successfully verified",
+                            memberid: row['memberid']
                         });
                     }).catch(err => {
                         res.send({

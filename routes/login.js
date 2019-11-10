@@ -39,14 +39,14 @@ router.post('/', (req, res) => {
                 let verified = row['verification'];
 
                 if (wasCorrectPw) {
+                    //credentials match. get a new JWT
+                    let token = jwt.sign({ username: email },
+                        config.secret,
+                        {
+                            expiresIn: '24h' // expires in 24 hours
+                        }
+                    );
                     if (verified) {
-                        //credentials match. get a new JWT
-                        let token = jwt.sign({ username: email },
-                            config.secret,
-                            {
-                                expiresIn: '24h' // expires in 24 hours
-                            }
-                        );
                         //package and send the results
                         res.json({
                             success: true,
@@ -57,7 +57,8 @@ router.post('/', (req, res) => {
                     } else {
                         res.json({
                             success: false,
-                            error: "not verified"
+                            error: "not verified",
+                            token: token
                         });
                     }
                 } else {
