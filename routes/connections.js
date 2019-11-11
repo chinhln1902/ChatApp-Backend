@@ -42,6 +42,7 @@ router.post('/add', (req, res) => {
     let check = `SELECT * FROM Contacts
                 WHERE (memberId_A=$1 AND memberId_B=$2)
                 OR (memberId_B=$2 AND memberId_A=$1)`
+                
     let query = `INSERT INTO Contacts(memberId_A, memberId_B)
                 VALUES($1, $2)`
     db.none(check, [memberIdUser, memberIdOther])

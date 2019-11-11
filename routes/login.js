@@ -24,7 +24,7 @@ router.post('/', (req, res) => {
     let wasSuccessful = false;
     if (email && theirPw) {
         //Using the 'one' method means that only one row should be returned
-        db.one('SELECT Password, Salt FROM Members WHERE Email=$1', [email])
+        db.one('SELECT MemberId, Password, Salt, Verification FROM Members WHERE Email=$1', [email])
             .then(row => { //If successful, run function passed into .then()
                 let salt = row['salt'];
                 //Retrieve our copy of the password
@@ -36,6 +36,8 @@ router.post('/', (req, res) => {
                 //Did our salted hash match their salted hash?
                 let wasCorrectPw = ourSaltedHash === theirSaltedHash;
 
+                let verified = row['verification'];
+
                 if (wasCorrectPw) {
                     //credentials match. get a new JWT
                     let token = jwt.sign({ username: email },
@@ -44,16 +46,26 @@ router.post('/', (req, res) => {
                             expiresIn: '24h' // expires in 24 hours
                         }
                     );
-                    //package and send the results
-                    res.json({
-                        success: true,
-                        message: 'Authentication successful!',
-                        token: token
-                    });
+                    if (verified) {
+                        //package and send the results
+                        res.json({
+                            success: true,
+                            message: 'Authentication successful!',
+                            memberid: row['memberid'],
+                            token: token
+                        });
+                    } else {
+                        res.json({
+                            success: false,
+                            error: "not verified",
+                            token: token
+                        });
+                    }
                 } else {
-                    //credentials dod not match
+                    //credentials did not match
                     res.send({
-                        success: false
+                        success: false,
+                        error: "password incorrect"
                     });
                 }
             })
@@ -62,13 +74,13 @@ router.post('/', (req, res) => {
                 //If anything happened, it wasn't successful
                 res.send({
                     success: false,
-                    message: err
+                    error: err
                 });
             });
     } else {
         res.send({
             success: false,
-            message: 'missing credentials'
+            error: 'missing credentials'
         });
     }
 });
@@ -104,6 +116,7 @@ router.post('/pushy', (req, res) => {
                             res.json({
                                 success: true,
                                 message: 'Authentication successful!',
+                                memberid: row['memberid'],
                                 token: token
                             });
                         })
@@ -113,13 +126,15 @@ router.post('/pushy', (req, res) => {
                             //If anything happened, it wasn't successful
                             //some error on pushy token insert. See console logs
                             res.send({
-                                success: false
+                                success: false,
+                                error: err
                             });
                         });
                 } else {
                     //credentials dod not match
                     res.send({
-                        success: false
+                        success: false,
+                        error: "credentials did not match"
                     });
                 }
             })
@@ -129,13 +144,13 @@ router.post('/pushy', (req, res) => {
                 console.log("Here (login) on error " + err);
                 res.send({
                     success: false,
-                    message: err
+                    error: err
                 });
             });
     } else {
         res.send({
             success: false,
-            message: 'missing credentials'
+            error: 'missing credentials'
         });
     }
 });
