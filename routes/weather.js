@@ -1,6 +1,7 @@
 const OPW_API_KEY = process.env.OPENWEATHERMAP_API_KEY;
 const WB_API_KEY = process.env.WEATHERBIT_API_KEY;
 const DS_API_KEY = process.env.DARK_SKY_API_KEY;
+const MQ_API_KEY = process.env.MAPQUEST_API_KEY;
 //express is the framework we're going to use to handle requests
 const express = require('express');
 //Create a new instance of express router
@@ -88,9 +89,29 @@ router.post("/zip", (req, res) => {
     });    
 });
 
-//
-//TODO 24h
-//
+router.post("/zip/24h", (req, res) => {
+    let zip = req.body['zip'];
+
+    let url = `http://www.mapquestapi.com/geocoding/v1/address?key=${MQ_API_KEY}&location=${zip}`;
+
+    request(url, function (error, _response, body) {
+        if (error) {
+            res.send(error);
+        } else {
+            let lat = body['results'][0]['locations'][0]['latLng']['lat'];
+            let lon = body['results'][0]['locations'][0]['latLng']['lng'];
+            let url = `https://api.darksky.net/forecast/${DS_API_KEY}/${lat},${lon}`;
+            request(url, function (error, _response, body) {
+                if (error) {
+                    res.send(error);
+                } else {
+                    res.send(body);
+                }
+            });    
+        }
+    });   
+
+});
 
 router.post("/zip/10d", (req, res) => {
     let zip = req.body['zip'];
