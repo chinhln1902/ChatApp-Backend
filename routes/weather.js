@@ -96,14 +96,20 @@ router.post("/zip/24h", (req, res) => {
 
     request(url, function (error, _response, body) {
         if (error) {
-            res.send(error);
+            res.send({
+                success: false,
+                error: "error zip" + zip
+            });
         } else {
             let lat = body['results'][0]['locations'][0]['latLng']['lat'];
             let lon = body['results'][0]['locations'][0]['latLng']['lng'];
             let url = `https://api.darksky.net/forecast/${DS_API_KEY}/${lat},${lon}`;
             request(url, function (error, _response, body) {
                 if (error) {
-                    res.send(error);
+                    res.send({
+                        success: false,
+                        error: "error lat" + lat + "\nlon" + lon
+                    });
                 } else {
                     res.send(body);
                 }
