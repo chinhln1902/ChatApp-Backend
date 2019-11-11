@@ -93,30 +93,27 @@ router.post("/zip/24h", (req, res) => {
     let zip = req.body['zip'];
 
     let url = `http://www.mapquestapi.com/geocoding/v1/address?key=${MQ_API_KEY}&location=${zip}`;
+    let lat;
+    let lon;
 
     request(url, function (error, _response, body) {
-        if (error) {
-            res.send({
-                success: false,
-                error: "error zip" + zip
-            });
+        if (error) {    
+            res.send(error);
         } else {
-            let lat = body['results'][0]['locations'][0]['latLng']['lat'];
-            let lon = body['results'][0]['locations'][0]['latLng']['lng'];
-            let url = `https://api.darksky.net/forecast/${DS_API_KEY}/${lat},${lon}`;
-            request(url, function (error, _response, body) {
-                if (error) {
-                    res.send({
-                        success: false,
-                        error: "error lat" + lat + "\nlon" + lon
-                    });
-                } else {
-                    res.send(body);
-                }
-            });    
+            let json = body.json();
+            lat = json.results[0].locations[0].latLng.lat;
+            lon = body.results[0].locations[0].latLng.lng;
         }
     });   
 
+    let url2 = `https://api.darksky.net/forecast/${DS_API_KEY}/${lat},${lon}`;
+    request(url2, function (error, _response, body) {
+        if (error) {
+            res.send(error);
+        } else {
+            res.send(body);
+        }
+    });    
 });
 
 router.post("/zip/10d", (req, res) => {
