@@ -13,13 +13,13 @@ router.use(bodyParser.json());
 //Get all of the messages from a chat session with id chatid
 router.post('/remove', (req, res) => {
     // let chatId = req.body['chatId'];
-    let memberId = req.body['memberId'];
+    let memberIdUser = req.body['memberIdUser'];
     let memberIdOther = req.body['memberIdOther'];
 
     let query = `DELETE FROM Contacts
                 WHERE (memberId_A=$1 AND memberId_B=$2)
-                OR (memberId_A=$2 AND memberId_B=$1ƒ)`
-    db.none(query, [memberId, memberIdOther])
+                OR (memberId_A=$2 AND memberId_B=$1)`
+    db.none(query, [memberIdUser, memberIdOther])
         .then(() => {
             res.send({
                 success: true,
@@ -36,7 +36,7 @@ router.post('/remove', (req, res) => {
 //Get all of the messages from a chat session with id chatid
 router.post('/add', (req, res) => {
     // let chatId = req.body['chatId'];
-    let memberId = req.body['memberId'];
+    let memberIdUser = req.body['memberIdUser'];
     let memberIdOther = req.body['memberIdOther'];
 
     let check = `SELECT * FROM Contacts
@@ -45,9 +45,9 @@ router.post('/add', (req, res) => {
                 
     let query = `INSERT INTO Contacts(memberId_A, memberId_B)
                 VALUES($1, $2)`
-    db.none(check, [memberId, memberIdOther])
+    db.none(check, [memberIdUser, memberIdOther])
         .then(() => {
-            db.none(query, [memberId, memberIdOther])
+            db.none(query, [memberIdUser, memberIdOther])
                 .then(() => {
                     res.send({
                         success: true,
@@ -89,14 +89,14 @@ router.post('/search', (req, res) => {
 });
 
 router.post('/confirm', (req, res) => {
-    let memberId = req.body['memberId'];
+    let memberIdUser = req.body['memberIdUser'];
     let memberIdOther = req.body['memberIdOther'];
 
     let query = `UPDATE Contacts
                 SET Verified=1
                 WHERE memberId_A=$2
                 AND memberId_B=$1`
-    db.none(query, [memberId, memberIdOther])
+    db.none(query, [memberIdUser, memberIdOther])
         .then(() => {
             res.send({
                 success: true,
