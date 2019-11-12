@@ -9,6 +9,7 @@ app.use('/login', require('./routes/login.js'));
 app.use('/register', require('./routes/register.js')); 
 app.use('/messaging', middleware.checkToken, require('./routes/messaging.js'));
 app.use('/weather', middleware.checkToken, require('./routes/weather.js'));
+app.use('/chats', require('./routes/chats.js'));
 /*
  * Return HTML for the / end point. 
  * This is a nice location to document your web service API
