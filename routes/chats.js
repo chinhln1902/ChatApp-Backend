@@ -5,23 +5,32 @@ const request = require("request");
 let db = require("../utilities/utils").db;
 
 var router = express.Router();
-// const bodyParser = require("body-parser");
-// router.use(bodyParser.json());
+const bodyParser = require("body-parser");
+router.use(bodyParser.json());
 
-router.get("/", (req,res) => {
-  db.manyOrNone("SELECT * FROM Chats")
-  .then((data) => {
-    res.send({
-      success: true,
-      names: data
-    });
-  }).catch((error) => {
-    console.log(error);
+router.post("/", (req, res) => {
+  let memberId = req.body["memberId"];
+
+  if (memberId) {
+    db.manyOrNone("SELECT * FROM ChatMembers, Chats WHERE Chats.chatid = ChatMembers.chatid AND memberID = $1", [memberId])
+      .then((data) => {
+        res.send({
+          success: true,
+          names: data
+        });
+      }).catch((error) => {
+        console.log(error);
+        res.send({
+          success: false,
+          error: error
+        })
+      });
+  } else {
     res.send({
       success: false,
-      error: error
+      message: "missing memberId"
     })
-  });
+  }
 });
 
 module.exports = router;
