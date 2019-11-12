@@ -8,7 +8,7 @@ var router = express.Router();
 // const bodyParser = require("body-parser");
 // router.use(bodyParser.json());
 
-router.post("/", (req,res) => {
+router.get("/", (req,res) => {
   db.manyOrNone("SELECT * FROM Chats")
   .then((data) => {
     res.send({
