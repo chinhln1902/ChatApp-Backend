@@ -18,7 +18,7 @@ router.post('/remove', (req, res) => {
 
     let query = `DELETE FROM Contacts
                 WHERE (memberId_A=$1 AND memberId_B=$2)
-                OR (memberId_B=$1 AND memberId_A=$2)`
+                OR (memberId_A=$2 AND memberId_B=$1)`
     db.none(query, [memberIdUser, memberIdOther])
         .then(() => {
             res.send({
