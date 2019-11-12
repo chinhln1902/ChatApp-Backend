@@ -11,8 +11,13 @@ router.use(bodyParser.json());
 router.post("/", (req, res) => {
   let memberId = req.body["memberId"];
 
+  let query = `Select Chats.ChatID, Chats.Name, RecentMessage.Message, RecentMessage.Timestamp From Chats
+  Inner Join ChatMembers On Chats.ChatId = ChatMembers.ChatId
+  Left Join (Select * From Messages Where ChatId = 1 Order By Timestamp Desc Limit 1) As RecentMessage
+  On Chats.ChatID = RecentMessage.ChatID
+  Where ChatMembers.MemberId = $1`
   if (memberId) {
-    db.manyOrNone("SELECT * FROM ChatMembers, Chats WHERE Chats.chatid = ChatMembers.chatid AND memberID = $1", [memberId])
+    db.manyOrNone(query, [memberId])
       .then((data) => {
         res.send({
           success: true,
