@@ -12,7 +12,7 @@ router.post("/", (req, res) => {
   let memberId = req.body["memberId"];
 
   if (memberId) {
-    db.manyOrNone("SELECT * FROM ChatMembers, Chats WHERE Chats.chatid = ChatMembers.chatid AND memberID = $1", [memberId])
+    db.manyOrNone("SELECT * FROM ChatMembers, Chats WHERE Chats.chatid = ChatMembers.chatid AND  memberID = $1", [memberId])
       .then((data) => {
         res.send({
           success: true,
@@ -23,13 +23,13 @@ router.post("/", (req, res) => {
         res.send({
           success: false,
           error: error
-        })
+        });
       });
   } else {
     res.send({
       success: false,
       message: "missing memberId"
-    })
+    });
   }
 });
 
