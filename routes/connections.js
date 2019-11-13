@@ -42,7 +42,7 @@ router.post('/add', (req, res) => {
     let check = `SELECT * FROM Contacts
                 WHERE (memberId_A=$1 AND memberId_B=$2)
                 OR (memberId_B=$2 AND memberId_A=$1)`
-                
+
     let query = `INSERT INTO Contacts(memberId_A, memberId_B)
                 VALUES($1, $2)`
     db.none(check, [memberIdUser, memberIdOther])
@@ -110,26 +110,26 @@ router.post('/confirm', (req, res) => {
         });
 });
 
-router.post('/reject', (req, res) => {
-    let memberIdUser = req.body['memberIdUser'];
-    let memberIdOther = req.body['memberIdOther'];
+// router.post('/reject', (req, res) => {
+//     let memberIdUser = req.body['memberIdUser'];
+//     let memberIdOther = req.body['memberIdOther'];
 
-    let query = `DELTE FROM Contacts
-                WHERE memberId_A=$2
-                AND memberId_B=$1`
-    db.none(query, [memberIdUser, memberIdOther])
-        .then(() => {
-            res.send({
-                success: true,
-                message: "successfully rejected"
-            })
-        }).catch((err) => {
-            res.send({
-                success: false,
-                message: err
-            })
-        });
-});
+//     let query = `DELETE FROM Contacts
+//                 WHERE memberId_A=$2
+//                 AND memberId_B=$1`
+//     db.none(query, [memberIdUser, memberIdOther])
+//         .then(() => {
+//             res.send({
+//                 success: true,
+//                 message: "successfully rejected"
+//             })
+//         }).catch((err) => {
+//             res.send({
+//                 success: false,
+//                 message: err
+//             })
+//         });
+// });
 
 router.post('/requestsReceived', (req, res) => {
     let memberId = req.body['memberId'];
@@ -143,6 +143,7 @@ router.post('/requestsReceived', (req, res) => {
     db.manyOrNone(query, [memberId])
         .then((rows) => {
             res.send({
+                success: true,
                 connections: rows
             })
         }).catch((err) => {
@@ -159,12 +160,13 @@ router.post('/requestsSent', (req, res) => {
     let query = `SELECT MemberId, FirstName, LastName, Username
                 FROM Members
                 INNER JOIN Contacts
-                ON MemberId=memberId_A
+                ON MemberId=memberId_B
                 WHERE MemberId_A=$1
                 AND Verified=0`
     db.manyOrNone(query, [memberId])
         .then((rows) => {
             res.send({
+                success: true,
                 connections: rows
             })
         }).catch((err) => {
@@ -185,15 +187,43 @@ router.post('/getAll', (req, res) => {
                 WHERE memberId IN (SELECT memberId_A
                                     FROM Contacts
                                     WHERE memberId_A <> $1
+                                    AND memberId_B=$1
                                     AND Verified=1)
                 OR memberId IN (SELECT memberId_B
                                 FROM Contacts
                                 WHERE memberId_B <> $1
+                                AND memberId_A=$1
                                 AND Verified=1)`
     db.manyOrNone(query, [memberId])
         .then((rows) => {
             res.send({
                 connections: rows
+            })
+        }).catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+});
+
+//Get current person clicked
+router.post('/getFriend', (req, res) => {
+    // let chatId = req.body['chatId'];
+    let memberIdUser = req.body['memberIdUser'];
+    let memberIdOther = req.body['memberIdOther'];
+
+    let query = `SELECT memberId, FirstName, LastName, Username, Status.Verified
+                FROM Members LEFT JOIN (SELECT * From Contacts
+                                        WHERE MemberId_B=$1
+                                        AND MemberId_A=$2) AS Status
+                ON Members.MemberId=Status.MemberId_A
+                WHERE MemberId = $2`
+    db.one(query, [memberIdUser, memberIdOther])
+        .then((row) => {
+            res.send({
+                success: true,
+                connections: row
             })
         }).catch((err) => {
             res.send({
