@@ -110,7 +110,28 @@ router.post('/confirm', (req, res) => {
         });
 });
 
-router.post('/requests', (req, res) => {
+router.post('/reject', (req, res) => {
+    let memberIdUser = req.body['memberIdUser'];
+    let memberIdOther = req.body['memberIdOther'];
+
+    let query = `DELTE FROM Contacts
+                WHERE memberId_A=$2
+                AND memberId_B=$1`
+    db.none(query, [memberIdUser, memberIdOther])
+        .then(() => {
+            res.send({
+                success: true,
+                message: "successfully rejected"
+            })
+        }).catch((err) => {
+            res.send({
+                success: false,
+                message: err
+            })
+        });
+});
+
+router.post('/requestsReceived', (req, res) => {
     let memberId = req.body['memberId'];
 
     let query = `SELECT MemberId, FirstName, LastName, Username
@@ -118,6 +139,28 @@ router.post('/requests', (req, res) => {
                 INNER JOIN Contacts
                 ON MemberId=memberId_A
                 WHERE MemberId_B=$1
+                AND Verified=0`
+    db.manyOrNone(query, [memberId])
+        .then((rows) => {
+            res.send({
+                connections: rows
+            })
+        }).catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
+});
+
+router.post('/requestsSent', (req, res) => {
+    let memberId = req.body['memberId'];
+
+    let query = `SELECT MemberId, FirstName, LastName, Username
+                FROM Members
+                INNER JOIN Contacts
+                ON MemberId=memberId_A
+                WHERE MemberId_A=$1
                 AND Verified=0`
     db.manyOrNone(query, [memberId])
         .then((rows) => {
