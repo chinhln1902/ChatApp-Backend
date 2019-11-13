@@ -13,7 +13,7 @@ router.post("/", (req, res) => {
 
   let query = `Select Chats.ChatID, Chats.Name, RecentMessage.Message, RecentMessage.Timestamp From Chats
   Inner Join ChatMembers On Chats.ChatId = ChatMembers.ChatId
-  Left Join (Select * From Messages Where ChatId = 1 Order By Timestamp Desc Limit 1) As RecentMessage
+  Left Join (Select Distinct On (ChatId) ChatId, Message, Timestamp From Messages Order By ChatId, Timestamp) As RecentMessage
   On Chats.ChatID = RecentMessage.ChatID
   Where ChatMembers.MemberId = $1`
   if (memberId) {
