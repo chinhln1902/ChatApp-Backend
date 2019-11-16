@@ -145,7 +145,7 @@ router.post("/send", (req, res) => {
         });
     } else {
         let insert = "INSERT INTO Locations (MemberID, Nickname)" //ZIP
-        + "SELECT MemberID, $2, $3, $4" //$5
+        + "SELECT MemberID, $2" //$5
         + "FROM Members"
         + "WHERE email=$1 AND NOT EXISTS (SELECT LOCATIONS.MEMBERID, nickname"
         +                        "FROM MEMBERS"
