@@ -147,10 +147,7 @@ router.post("/send", (req, res) => {
         let insert = "INSERT INTO Locations (MemberID, Nickname)" //ZIP
         + "SELECT MemberID, $2" //$5
         + "FROM Members"
-        + "WHERE email=$1 AND NOT EXISTS (SELECT *"
-        +                        "FROM MEMBERS"
-        +                        "JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID"
-        +                        "WHERE email=$1 AND nickname=$2)"
+        + "WHERE email=$1 "
         db.none(insert, [email, city + ", " + country])//zip
             .then(() => {
                 res.send({
