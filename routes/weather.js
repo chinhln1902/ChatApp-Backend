@@ -132,10 +132,8 @@ router.post("/send", (req, res) => {
     let email = req.body['email'];
     let city = req.body['city'];
     let country = req.body['country'];
-    let lat = req.body['lat'];
-    let lon = req.body['lon'];
     // let zip = req.body['zip'];
-    if (!email || !lat || !lon || !city
+    if (!email || !city
         //  || !zip || !city || country 
          ) {
         res.send({
@@ -148,12 +146,16 @@ router.post("/send", (req, res) => {
     } else {
         let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
         + "SELECT MemberID, $2, $3, $4" //$5
-        + "FROM Members WHERE email=$1"
-        db.none(insert, [email, city + ", " + country,  lat, lon])//zip
+        + "FROM Members"
+        + "WHERE email=$1 AND NOT EXISTS (SELECT LOCATIONS.MEMBERID, nickname"
+        +                        "FROM MEMBERS"
+        +                        "JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID"
+        +                        "WHERE email = $1 AND nickname = #2"
+        db.none(insert, [email, city + ", " + country])//zip
             .then(() => {
                 res.send({
                     success: true,
-                    message: "hi"
+                    message: "success"
                 });
             })
             .catch((err) => {
@@ -164,31 +166,6 @@ router.post("/send", (req, res) => {
                 });
             });
     }
-
-    // let query = "SELECT MemberID FROM Members WHERE email=$1";
-    // db.manyOrNone(query, [email])
-    //     .then((rows) => {
-    //         res.send({
-    //             messages: rows
-    //         })
-    //         //add zip
-    //         let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
-    //         + "VALUES ($1, $2, $3, $4)";//$5
-    //         db.none(insert, [rows[0].body['MemberID'], city + ", " + country,  lat, lon])//zip
-    //             .catch((err) => {
-    //                 res.send({
-    //                     success: false,
-    //                     errorMessage: "INSERT error",
-    //                     error: err
-    //                 });
-    //             });
-    //     }).catch((err) => {
-    //         res.send({
-    //             success: false,
-    //             errorMessage: "SELECT error email:" + email,
-    //             error: err
-    //         })
-    //     });
 
 });
 
