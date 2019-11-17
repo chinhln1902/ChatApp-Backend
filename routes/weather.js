@@ -134,7 +134,7 @@ router.post("/send", (req, res) => {
     let country = req.body['country'];
     let lat = req.body['lat'];
     let lon = req.body['lon'];
-    let zip = req.body['zip'];
+    // let zip = req.body['zip'];
     if (!email || !city || !lat || !lon
         //  || !zip || !city || country 
          ) {
@@ -146,10 +146,10 @@ router.post("/send", (req, res) => {
             " not supplied"
         });
     } else {
-        let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long, Zip) " //ZIP
+        let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
         + "SELECT MemberID, $2, $3, $4, $5" 
         + "FROM Members WHERE email=$1 AND NOT EXISTS (SELECT * FROM MEMBERS JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID WHERE email = $1 AND nickname = $2)"
-        db.none(insert, [email, city + ", " + country, lat, lon, zip])//zip
+        db.none(insert, [email, city + ", " + country, lat, lon,])//zip
             .then(() => {
                 res.send({
                     success: true,
