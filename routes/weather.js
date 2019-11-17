@@ -204,7 +204,7 @@ router.post("/get/rows", (req, res) => {
 
     let query = "SELECT Count(*) FROM Locations JOIN Members ON " + 
     "Members.MemberID = Locations.MemberID WHERE email=$1";
-    db.manyOrNone(query, [email])
+    db.one(query, [email])
         .then((rows) => {
             res.send({
                 messages: rows
