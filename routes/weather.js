@@ -135,7 +135,7 @@ router.post("/send", (req, res) => {
     let lat = req.body['lat'];
     let lon = req.body['lon'];
     let zip = req.body['zip'];
-    if (!email || !city
+    if (!email || !city || !lat || !lon
         //  || !zip || !city || country 
          ) {
         res.send({
@@ -158,11 +158,10 @@ router.post("/send", (req, res) => {
         // +                        "JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID"
         // +                        "WHERE email = $1 AND nickname = $2)"
         db.none(insert, [email, city + ", " + country])//zip
-            .then((data) => {
+            .then(() => {
                 res.send({
                     success: true,
-                    message: "success",
-                    data: data
+                    message: "success"
                 });
             })
             .catch((err) => {
@@ -202,6 +201,31 @@ router.post("/get", (req, res) => {
             })
         });
 
+});
+
+router.post("/get/rows", (req, res) => {
+    let email = req.body['email'];
+    if (!email) {
+        res.send({
+            success: false,
+            error: "email is not supplied"
+        });
+        return;
+    }
+
+    let query = "SELECT Count(*) FROM Locations JOIN Members ON " + 
+    "Members.MemberID = Locations.MemberID WHERE email=$1";
+    db.manyOrNone(query, [email])
+        .then((rows) => {
+            res.send({
+                messages: rows
+            })
+        }).catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
 });
 
 module.exports = router;
