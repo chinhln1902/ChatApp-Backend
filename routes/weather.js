@@ -158,10 +158,11 @@ router.post("/send", (req, res) => {
         // +                        "JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID"
         // +                        "WHERE email = $1 AND nickname = $2)"
         db.none(insert, [email, city + ", " + country])//zip
-            .then(() => {
+            .then((data) => {
                 res.send({
                     success: true,
-                    message: "hi"
+                    message: "success",
+                    data: data
                 });
             })
             .catch((err) => {
