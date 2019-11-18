@@ -135,7 +135,7 @@ router.post("/send", (req, res) => {
     let lat = req.body['lat'];
     let lon = req.body['lon'];
     let zip = req.body['zip'];
-    if (!email || !city || !lat || !lon
+    if (!email || !city || !zip
         //  || !zip || !city || country 
          ) {
         res.send({
