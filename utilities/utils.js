@@ -28,7 +28,7 @@ function sendEmail(receiver, subj, message) {
         from: ADMIN_EMAIL_KEY,
         to: receiver,
         subject: subj,
-        text: message
+        html: message
     };
 
     transporter.sendMail(mailOptions, function (error, info) {

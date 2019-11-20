@@ -132,12 +132,12 @@ router.post("/resend", (req, res) => {
                         message: "new verify code sent"
                     });
                     sendEmail(email, 'Charles Angels Registration Confirmation',
-                        `Greetings from Charles Angels,\n
-                    Thank you for signing up for our services.\n
-                    Input this code to your verification on the app to continue using our services\n`
-                        + newCode +
-                        `Good morning angel!\n
-                    -Charles Angels Services Team`);
+                        "Greetings from Charles Angels,<br><br>" +
+                        "Thank you for signing up for our services.<br>" +
+                        "Input this code in the app to verify your account and to continue using our services:<br><br>" +
+                        "<b>" + newCode + "</b><br><br>" +
+                        "Good morning angel!<br>" +
+                        "-Charles Angels Services Team");
                 }).catch(err => {
                     res.send({
                         success: false,
