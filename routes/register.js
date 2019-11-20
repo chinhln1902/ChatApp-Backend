@@ -65,12 +65,12 @@ router.post('/', (req, res) => {
                     token: token
                 });
                 sendEmail(email, 'Charles Angels Registration Confirmation',
-                    `Greetings from Charles Angels,\n
-                    Thank you for signing up for our services.\n
-                    Input this code to your verification on the app to continue using our services\n`
+                    "Greetings from Charles Angels,\n" +
+                    "Thank you for signing up for our services.\n" +
+                    "Input this code in the app to verify your account and to continue using our services:\n"
                     + newCode +
-                    `Good morning angel!\n
-                    -Charles Angels Services Team`);
+                    "Good morning angel!\n" +
+                    "-Charles Angels Services Team");
             }).catch((err) => {
                 //log the error
                 console.log(err);
