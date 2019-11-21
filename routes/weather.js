@@ -134,8 +134,8 @@ router.post("/send", (req, res) => {
     let country = req.body['country'];
     let lat = req.body['lat'];
     let lon = req.body['lon'];
-    // let zip = req.body['zip'];
-    if (!email || !lat || !lon || !city
+    let zip = req.body['zip'];
+    if (!email || !city || !zip
         //  || !zip || !city || country 
          ) {
         res.send({
@@ -146,14 +146,14 @@ router.post("/send", (req, res) => {
             " not supplied"
         });
     } else {
-        let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
-        + "SELECT MemberID, $2, $3, $4" //$5
-        + "FROM Members WHERE email=$1"
-        db.none(insert, [email, city + ", " + country,  lat, lon])//zip
+        let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long, Zip) " //ZIP
+        + "SELECT MemberID, $2, $3, $4, $5" 
+        + "FROM Members WHERE email=$1 AND NOT EXISTS (SELECT * FROM MEMBERS JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID WHERE email = $1 AND nickname = $2)"
+        db.none(insert, [email, city + ", " + country, lat, lon, zip])//zip
             .then(() => {
                 res.send({
                     success: true,
-                    message: "hi"
+                    message: "success"
                 });
             })
             .catch((err) => {
@@ -164,32 +164,6 @@ router.post("/send", (req, res) => {
                 });
             });
     }
-
-    // let query = "SELECT MemberID FROM Members WHERE email=$1";
-    // db.manyOrNone(query, [email])
-    //     .then((rows) => {
-    //         res.send({
-    //             messages: rows
-    //         })
-    //         //add zip
-    //         let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
-    //         + "VALUES ($1, $2, $3, $4)";//$5
-    //         db.none(insert, [rows[0].body['MemberID'], city + ", " + country,  lat, lon])//zip
-    //             .catch((err) => {
-    //                 res.send({
-    //                     success: false,
-    //                     errorMessage: "INSERT error",
-    //                     error: err
-    //                 });
-    //             });
-    //     }).catch((err) => {
-    //         res.send({
-    //             success: false,
-    //             errorMessage: "SELECT error email:" + email,
-    //             error: err
-    //         })
-    //     });
-
 });
 
 router.post("/get", (req, res) => {
@@ -216,6 +190,31 @@ router.post("/get", (req, res) => {
             })
         });
 
+});
+
+router.post("/get/rows", (req, res) => {
+    let email = req.body['email'];
+    if (!email) {
+        res.send({
+            success: false,
+            error: "email is not supplied"
+        });
+        return;
+    }
+
+    let query = "SELECT Count(*) FROM Locations JOIN Members ON " + 
+    "Members.MemberID = Locations.MemberID WHERE email=$1";
+    db.one(query, [email])
+        .then((rows) => {
+            res.send({
+                messages: rows
+            })
+        }).catch((err) => {
+            res.send({
+                success: false,
+                error: err
+            })
+        });
 });
 
 module.exports = router;

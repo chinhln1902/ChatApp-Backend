@@ -15,7 +15,8 @@ router.post("/", (req, res) => {
   Inner Join ChatMembers On Chats.ChatId = ChatMembers.ChatId
   Left Join (Select Distinct On (ChatId) ChatId, Message, Timestamp From Messages Order By ChatId, Timestamp) As RecentMessage
   On Chats.ChatID = RecentMessage.ChatID
-  Where ChatMembers.MemberId = $1`
+  Where ChatMembers.MemberId = $1
+  Order By RecentMessage.Timestamp DESC`
   if (memberId) {
 
     db.manyOrNone(query, [memberId])
