@@ -36,7 +36,7 @@ router.post("/", (req, res) => {
       success: false,
       message: "missing memberId"
     });
-  }
+  } 
 });
 
 module.exports = router;
