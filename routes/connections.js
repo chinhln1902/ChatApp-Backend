@@ -233,4 +233,51 @@ router.post('/getFriend', (req, res) => {
         });
 });
 
+//Get current person clicked
+router.post('/getPerson', (req, res) => {
+    // let chatId = req.body['chatId'];
+    let memberIdUser = req.body['memberIdUser'];
+    let memberIdOther = req.body['memberIdOther'];
+    let check = `SELECT Verified
+                FROM Contacts
+                WHERE (memberId_A=$1 AND memberId_B=$2)
+                OR (memberId_B=$2 AND memberId_A=$1)`;
+    let query = `SELECT memberId, FirstName, LastName, Username
+                FROM Members
+                WHERE MemberId=$1`;
+    db.oneOrNone(check, [memberIdUser, memberIdOther])
+        .then((row1) => {
+            db.one(query, [memberIdOther])
+                .then((row2) => {
+                    let status = "";
+                    if (row1 == null) {
+                        status = "no connection at all";
+                    } else if (row1['verified'] == 0) {
+                        if (row1['memberId_A'] == memberIdOther) {
+                            status = "sent request to user";
+                        } else {
+                            status = "received request from user";
+                        }
+                    } else {
+                        status = "already connected";
+                    }
+                    res.send({
+                        success: true,
+                        connection: row2,
+                        status: status
+                    })
+                }).catch((err2) => {
+                    res.send({
+                        success: false,
+                        error: err2
+                    })
+                });
+        }).catch((err1) => {
+            res.send({
+                success: false,
+                error: err1
+            })
+        });
+});
+
 module.exports = router; 

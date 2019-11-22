@@ -28,7 +28,7 @@ function sendEmail(receiver, subj, message) {
         from: ADMIN_EMAIL_KEY,
         to: receiver,
         subject: subj,
-        text: message
+        html: message
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
@@ -44,7 +44,7 @@ function sendEmail(receiver, subj, message) {
 
 function randomCode() {
     var code = "";
-    for (var i = 0; i < 6; i++) {
+    for (var i = 0; i < 4; i++) {
         code += Math.floor(Math.random() * (10 - 0) + 0);
     }
     return code;
