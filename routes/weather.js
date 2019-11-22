@@ -206,9 +206,7 @@ router.post("/get/rows", (req, res) => {
     "Members.MemberID = Locations.MemberID WHERE email=$1";
     db.one(query, [email])
         .then((rows) => {
-            res.send({
-                messages: rows
-            })
+            res.send(rows)
         }).catch((err) => {
             res.send({
                 success: false,
