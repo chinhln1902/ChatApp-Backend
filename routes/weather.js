@@ -135,6 +135,9 @@ router.post("/send", (req, res) => {
     let lat = req.body['lat'];
     let lon = req.body['lon'];
     let zip = req.body['zip'];
+    if (!Number.isInteger(zip)) {
+        zip = null;
+    }
     if (!email // is city always not null zip can be null
         //  || !zip || !city || country 
          ) {
