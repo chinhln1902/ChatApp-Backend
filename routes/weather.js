@@ -145,6 +145,30 @@ router.post("/send", (req, res) => {
             // ", zip"
             " not supplied"
         });
+    } else if (zip == null) {
+        let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
+        + "SELECT MemberID, $2, $3, $4" 
+        + "FROM Members WHERE email=$1 AND NOT EXISTS (SELECT * FROM MEMBERS JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID WHERE email = $1 AND nickname = $2)";
+        let nickname;
+        if (city == null)    {
+            nickname = country;
+        } else {
+            nickname = city + ", " + country
+        }
+        db.none(insert, [email, nickname, lat, lon])//zip
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: "success"
+                });
+            })
+            .catch((err) => {
+                res.send({
+                    success: false,
+                    errorMessage: "INSERT error",
+                    error: err
+                });
+            });
     } else {
         let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long, Zip) " //ZIP
         + "SELECT MemberID, $2, $3, $4, $5" 
