@@ -47,7 +47,7 @@ CREATE TABLE Locations (PrimaryKey SERIAL PRIMARY KEY,
                         Nickname VARCHAR(255),
                         Lat DECIMAL,
                         Long DECIMAL,
-                        ZIP INT,
+                        ZIP INT,-- make it string
                         FOREIGN KEY(MemberID) REFERENCES Members(MemberID)
 );
 

@@ -135,21 +135,54 @@ router.post("/send", (req, res) => {
     let lat = req.body['lat'];
     let lon = req.body['lon'];
     let zip = req.body['zip'];
-    if (!email || !city || !zip
+    if (!Number.isInteger(zip)) {
+        zip = null;
+    }
+    if (!email // is city always not null zip can be null
         //  || !zip || !city || country 
          ) {
         res.send({
             success: false,
             error: "email:" +  email +  " city:" + city + " country:" + country + " lat:" + lat + " lon:" + lon + " " +
-            !email + !lat + !lon + !city + 
+            "zip:" + zip + !email + !lat + !lon + !city + !zip +
             // ", zip"
             " not supplied"
         });
+    } else if (zip == null) {
+        let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long) " //ZIP
+        + "SELECT MemberID, $2, $3, $4" 
+        + "FROM Members WHERE email=$1 AND NOT EXISTS (SELECT * FROM MEMBERS JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID WHERE email = $1 AND nickname = $2)";
+        let nickname;
+        if (city == null)    {
+            nickname = country;
+        } else {
+            nickname = city + ", " + country
+        }
+        db.none(insert, [email, nickname, lat, lon])//zip
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: "success"
+                });
+            })
+            .catch((err) => {
+                res.send({
+                    success: false,
+                    errorMessage: "INSERT error",
+                    error: err
+                });
+            });
     } else {
         let insert = "INSERT INTO Locations (MemberID, Nickname, Lat, Long, Zip) " //ZIP
         + "SELECT MemberID, $2, $3, $4, $5" 
-        + "FROM Members WHERE email=$1 AND NOT EXISTS (SELECT * FROM MEMBERS JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID WHERE email = $1 AND nickname = $2)"
-        db.none(insert, [email, city + ", " + country, lat, lon, zip])//zip
+        + "FROM Members WHERE email=$1 AND NOT EXISTS (SELECT * FROM MEMBERS JOIN LOCATIONS ON MEMBERS.MEMBERID = LOCATIONS.MEMBERID WHERE email = $1 AND nickname = $2)";
+        let nickname;
+        if (city == null)    {
+            nickname = country;
+        } else {
+            nickname = city + ", " + country
+        }
+        db.none(insert, [email, nickname, lat, lon, zip])//zip
             .then(() => {
                 res.send({
                     success: true,
@@ -206,9 +239,7 @@ router.post("/get/rows", (req, res) => {
     "Members.MemberID = Locations.MemberID WHERE email=$1";
     db.one(query, [email])
         .then((rows) => {
-            res.send({
-                messages: rows
-            })
+            res.send(rows)
         }).catch((err) => {
             res.send({
                 success: false,
