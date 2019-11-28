@@ -44,30 +44,42 @@ router.post("/", (req, res) => {
 //Create new chat
 router.post('/create', (req, res) => {
     let chatName = req.body["chatName"];
-    let chatID = req.body["chatID"];
+    
     let memberID = req.body["contactID"];
 
     let query1 = `INSERT INTO Chats(Name) VALUES ($1)`
     let query2 = `INSERT INTO ChatMembers(ChatID, MemberID) VALUES ($1, $2)`
+
     db.none(query1, [chatName])
       .then(() => {
-        db.none(query2, [chatID, memberID])
-          .then(() => {
-            res.send({
-              success: true,
-              message: "new chat successfully created"
-            })
-          }).catch(err => {
+        db.one(`SELECT ChatID 
+        FROM CHATS
+        ORDER BY ChatID DESC LIMIT 1`)
+          .then((data) => {
+            db.none(query2, [data.chatid, memberID])
+              .then(() => {
+                res.send({
+                  success: true,
+                  message: "new chat created successfully"
+                })
+              }).catch((err) => {
+                res.send({
+                  success: false,
+                  error: err
+                })
+              });
+          }).catch((err) => {
             res.send({
               success: false,
               error: err
             })
           });
-      }).catch(err => {
+      }).catch((err) => {
         res.send({
           success: false,
-          message: "created unsuccessfully"
+          error: err
         })
       });
 });
+
 module.exports = router;
