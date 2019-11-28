@@ -40,46 +40,53 @@ router.post("/", (req, res) => {
   } 
 });
 
+router.post('/createChat', (req, res) => {
+  let chatName = req.body["chatName"];
+  
+  let query = `INSERT INTO Chats(Name) VALUES ($1)`
+  db.none(query, [chatName])
+    .then(() => {
+      res.send({
+        success: true,
+        message: "created new chat"
+      })
+    }).catch((err) => {
+      res.send({
+        success: false,
+        error: err
+      })
+    });
+});
 
-//Create new chat
-router.post('/create', (req, res) => {
-    let chatName = req.body["chatName"];
-    
-    let memberID = req.body["contactID"];
+//Add friend to new chat
+router.post('/addFriendToChat', (req, res) => {
 
-    let query1 = `INSERT INTO Chats(Name) VALUES ($1)`
-    let query2 = `INSERT INTO ChatMembers(ChatID, MemberID) VALUES ($1, $2)`
+  let memberID = req.body["contactID"];
 
-    db.none(query1, [chatName])
-      .then(() => {
-        db.one(`SELECT ChatID 
-        FROM CHATS
-        ORDER BY ChatID DESC LIMIT 1`)
-          .then((data) => {
-            db.none(query2, [data.chatid, memberID])
-              .then(() => {
-                res.send({
-                  success: true,
-                  message: "new chat created successfully"
-                })
-              }).catch((err) => {
-                res.send({
-                  success: false,
-                  error: err
-                })
-              });
-          }).catch((err) => {
-            res.send({
-              success: false,
-              error: err
-            })
-          });
-      }).catch((err) => {
-        res.send({
-          success: false,
-          error: err
-        })
-      });
+  let query1 = `INSERT INTO ChatMembers(ChatID, MemberID) VALUES ($1, $2)`
+  let query2 = `SELECT ChatID 
+                FROM CHATS
+                ORDER BY ChatID DESC LIMIT 1`
+  db.one(query2)
+    .then((data) => {
+      db.none(query1, [data.chatid, memberID])
+        .then(() => {
+          res.send({
+            success: true,
+            message: "new chat created successfully"
+          })
+        }).catch((err) => {
+          res.send({
+            success: false,
+            error: err
+          })
+        });
+    }).catch((err) => {
+      res.send({
+        success: false,
+        error: err
+      })
+    });
 });
 
 module.exports = router;
