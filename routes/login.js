@@ -92,7 +92,7 @@ router.post('/pushy', (req, res) => {
     let wasSuccessful = false;
     if (email && theirPw && pushyToken) {
         //Using the 'one' method means that only one row should be returned
-        db.one('SELECT MemberID, Password, Salt FROM Members WHERE Email=$1', [email])
+        db.one('SELECT MemberID, Password, Salt, Verification FROM Members WHERE Email=$1', [email])
             .then(row => { //If successful, run function passed into .then()
                 let salt = row['salt'];
                 //Retrieve our copy of the password
@@ -111,7 +111,7 @@ router.post('/pushy', (req, res) => {
                     );
                     let params = [row['memberid'], pushyToken];
                     db.manyOrNone('INSERT INTO Push_Token (memberId, token) VALUES ($1, $2) ON CONFLICT(memberId) DO UPDATE SET token = $2; ', params)
-                        .then(row => {
+                        .then(data => {
                             //package and send the results
                             res.json({
                                 success: true,
