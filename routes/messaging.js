@@ -24,31 +24,42 @@ router.post("/send", (req, res) => {
         });
         return;
     }
+    let selectSender = "SELECT Username FROM Members WHERE email = $1";
     //add the message to the database
     let insert = "INSERT INTO Messages(ChatId, Message, MemberId) SELECT $1, $2, MemberId FROM Members WHERE email=$3";
     db.none(insert, [chatId, message, email])
         .then(() => {
-            //send a notification of this message to ALL members with registered tokens
-            db.manyOrNone('SELECT * FROM Push_Token WHERE MemberID IN (SELECT MemberID FROM ChatMembers Where ChatID=$1)', [chatId])
-                .then(rows => {
-                    rows.forEach(element => {
-                        msg_functions.sendToIndividual(element['token'], message, email);
-                    });
-                    res.send({
-                        success: true
-                    });
-                }).catch(err => {
+            db.one(selectSender, [email])
+                .then(data => {
+                    let username = data['username'];
+                    //send a notification of this message to ALL members with registered tokens
+                    db.manyOrNone('SELECT * FROM Push_Token WHERE MemberID IN (SELECT MemberID FROM ChatMembers Where ChatID=$1)', [chatId])
+                        .then(rows => {
+                            rows.forEach(element => {
+                                msg_functions.sendToIndividual(element['token'], message, username);
+                            });
+                            res.send({
+                                success: true
+                            });
+                        }).catch(err => {
+                            res.send({
+                                success: false,
+                                error: err,
+                            });
+                        })
+                }).catch((err) => {
                     res.send({
                         success: false,
                         error: err,
                     });
-                })
-        }).catch((err) => {
+                });
+        }).catch(err => {
             res.send({
                 success: false,
                 error: err,
             });
         });
+
 });
 //Get all of the messages from a chat session with id chatid
 router.post("/getAll", (req, res) => {
