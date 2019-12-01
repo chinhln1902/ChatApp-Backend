@@ -73,7 +73,8 @@ router.post('/addFriendToChat', (req, res) => {
         .then(() => {
           res.send({
             success: true,
-            message: "new chat created successfully"
+            message: "new chat created successfully",
+            chatid: data.chatid
           })
         }).catch((err) => {
           res.send({
