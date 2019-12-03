@@ -238,25 +238,28 @@ router.post('/getPerson', (req, res) => {
     // let chatId = req.body['chatId'];
     let memberIdUser = req.body['memberIdUser'];
     let memberIdOther = req.body['memberIdOther'];
-    let check = `SELECT Verified
+    let check = `SELECT Verified, MemberId_A
                 FROM Contacts
                 WHERE (memberId_A=$1 AND memberId_B=$2)
-                OR (memberId_B=$2 AND memberId_A=$1)`;
+                OR (memberId_A=$2 AND memberId_B=$1)
+                LIMIT 1`;
     let query = `SELECT memberId, FirstName, LastName, Username
                 FROM Members
                 WHERE MemberId=$1`;
     db.oneOrNone(check, [memberIdUser, memberIdOther])
         .then((row1) => {
+            // console.log(row1);
             db.one(query, [memberIdOther])
                 .then((row2) => {
                     let status = "";
                     if (row1 == null) {
                         status = "no connection at all";
                     } else if (row1['verified'] == 0) {
-                        if (row1['memberId_A'] == memberIdOther) {
-                            status = "sent request to user";
+                        console.log(row1['memberid_a']);
+                        if (row1['memberid_a'] == memberIdOther) {
+                            status = "received request from person";
                         } else {
-                            status = "received request from user";
+                            status = "sent request to person";
                         }
                     } else {
                         status = "already connected";
