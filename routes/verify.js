@@ -26,7 +26,7 @@ router.post("/confirm", (req, res) => {
         return;
     }
     //add the message to the database
-    let query = `SELECT MemberId, VerifyCode FROM MEMBERS WHERE Email=$1 AND Verification=0`;
+    let query = `SELECT MemberId, VerifyCode, ProfileURI FROM MEMBERS WHERE Email=$1 AND Verification=0`;
     db.one(query, [email])
         .then((row) => {
             if (row['verifycode'] == inputCode) {
@@ -35,7 +35,8 @@ router.post("/confirm", (req, res) => {
                         res.send({
                             success: true,
                             message: "successfully verified",
-                            memberid: row['memberid']
+                            memberid: row['memberid'],
+                            profileuri: row['profileuri']
                         });
                     }).catch(err => {
                         res.send({
@@ -69,7 +70,7 @@ router.post("/confirm/pushy", (req, res) => {
         return;
     }
     //add the message to the database
-    let query = `SELECT MemberId, VerifyCode FROM MEMBERS WHERE Email=$1 AND Verification=0`;
+    let query = `SELECT MemberId, VerifyCode, ProfileURI FROM MEMBERS WHERE Email=$1 AND Verification=0`;
     db.one(query, [email])
         .then((row1) => {
             if (row1['verifycode'] == inputCode) {
@@ -83,7 +84,7 @@ router.post("/confirm/pushy", (req, res) => {
                                     success: true,
                                     message: 'Authentication successful!',
                                     memberid: row1['memberid'],
-                                    token: token
+                                    profileuri: row1['profileuri']
                                 });
                             })
                             .catch(err3 => {
