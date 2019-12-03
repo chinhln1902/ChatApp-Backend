@@ -19,6 +19,8 @@ let randomCode = require('../utilities/utils').randomCode;
 
 let sendEmail = require('../utilities/utils').sendEmail;
 
+let getProfile = require('../utilities/utils').getProfile;
+
 var router = express.Router();
 
 const bodyParser = require("body-parser");
@@ -45,12 +47,14 @@ router.post('/', (req, res) => {
 
         let newCode = randomCode();
 
+        let profile_uri = getProfile(username);
+
         //Use .none() since no result gets returned from an INSERT in SQL
         //We're using placeholders ($1, $2, $3) in the SQL query string to avoid SQL Injection
         //If you want to read more: https://stackoverflow.com/a/8265319
-        let params = [first, last, username, email, salted_hash, salt, newCode];
+        let params = [first, last, username, email, salted_hash, salt, newCode, profile_uri];
 
-        db.none("INSERT INTO MEMBERS(FirstName, LastName, Username, Email, Password, Salt, VerifyCode) VALUES ($1, $2, $3, $4, $5, $6, $7)", params)
+        db.none("INSERT INTO MEMBERS(FirstName, LastName, Username, Email, Password, Salt, VerifyCode, ProfileURI) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", params)
             .then(() => {
                 let token = jwt.sign({ username: email },
                     config.secret,
