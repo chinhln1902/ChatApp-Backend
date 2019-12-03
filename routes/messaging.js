@@ -65,7 +65,7 @@ router.post("/send", (req, res) => {
 router.post("/getAll", (req, res) => {
     let chatId = req.body['chatId'];
 
-    let query = `SELECT Members.Email, Messages.Message,
+    let query = `SELECT Members.Username, Messages.Message,
                 to_char(Messages.Timestamp AT TIME ZONE 'PDT', 'YYYY-MM-DD HH24:MI:SS.US' )
                 AS Timestamp FROM Messages
                 INNER JOIN Members ON Messages.MemberId=Members.MemberId
