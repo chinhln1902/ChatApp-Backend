@@ -74,6 +74,7 @@ router.post("/getAll", (req, res) => {
     db.manyOrNone(query, [chatId])
         .then((rows) => {
             res.send({
+                success: true,
                 messages: rows
             })
         }).catch((err) => {
