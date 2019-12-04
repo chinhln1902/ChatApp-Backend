@@ -199,6 +199,34 @@ router.post("/send", (req, res) => {
     }
 });
 
+router.post("/delete", (req, res) => {
+    let email = req.body['email'];
+    let name = req.body['name'];
+
+    if (!email || !name ) {
+        res.send({
+            success: false,
+            error: "email:" +  email +  " name:" + name + " not supplied"
+        });
+    } else {
+        let deleteQ = "DELETE FROM Locations WHERE Nickname=$2 AND MemberID = (SELECT MemberID FROM MEMBERS WHERE email = $1);";
+        db.none(deleteQ, [email, name])
+            .then(() => {
+                res.send({
+                    success: true,
+                    message: "success"
+                });
+            })
+            .catch((err) => {
+                res.send({
+                    success: false,
+                    errorMessage: "DELETE error",
+                    error: err
+                });
+            });
+    }
+});
+
 router.post("/get", (req, res) => {
     let email = req.body['email'];
     if (!email) {
