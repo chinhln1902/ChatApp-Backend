@@ -90,7 +90,7 @@ router.post('/addFriendToChat', (req, res) => {
     });
 });
 
-router.post('/getNewestChatId', (req, res) => {
+router.get('/getNewestChatId', (req, res) => {
   let query = `SELECT ChatID 
                 FROM CHATS
               ORDER BY ChatID DESC LIMIT 1`
