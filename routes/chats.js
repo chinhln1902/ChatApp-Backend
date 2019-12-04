@@ -90,4 +90,21 @@ router.post('/addFriendToChat', (req, res) => {
     });
 });
 
+router.get('/getNewestChatId', (req, res) => {
+  let query = `SELECT ChatID 
+                FROM CHATS
+              ORDER BY ChatID DESC LIMIT 1`
+  db.one(query)
+    .then((data) => {
+      res.send({
+        success: true,
+        chatid: data.chatid
+      })
+      }).catch((err) => {
+        res.send({
+          success: false,
+          error: err
+        });
+    })
+});
 module.exports = router;
