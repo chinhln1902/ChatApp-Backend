@@ -14,22 +14,22 @@ let msg_functions = require('../utilities/utils').messaging;
 
 //send a message to all users "in" the chat session with chatId
 router.post("/send", (req, res) => {
-    let email = req.body['email'];
+    let memberId = req.body['memberId'];
     let message = req.body['message'];
     let chatId = req.body['chatId'];
-    if (!email || !message || !chatId) {
+    if (!memberId || !message || !chatId) {
         res.send({
             success: false,
-            error: "email, message, or chatId not supplied"
+            error: "memberId, message, or chatId not supplied"
         });
         return;
     }
-    let selectSender = "SELECT Username FROM Members WHERE email = $1";
+    let selectSender = "SELECT Username FROM Members WHERE memberId = $1";
     //add the message to the database
-    let insert = "INSERT INTO Messages(ChatId, Message, MemberId) SELECT $1, $2, MemberId FROM Members WHERE email=$3";
-    db.none(insert, [chatId, message, email])
+    let insert = "INSERT INTO Messages(ChatId, Message, MemberId) SELECT $1, $2, MemberId FROM Members WHERE memberId=$3";
+    db.none(insert, [chatId, message, memberId])
         .then(() => {
-            db.one(selectSender, [email])
+            db.one(selectSender, [memberId])
                 .then(data => {
                     let username = data['username'];
                     //send a notification of this message to ALL members with registered tokens
