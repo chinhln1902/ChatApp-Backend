@@ -36,7 +36,7 @@ router.post("/send", (req, res) => {
                     db.manyOrNone('SELECT * FROM Push_Token WHERE MemberID IN (SELECT MemberID FROM ChatMembers Where ChatID=$1)', [chatId])
                         .then(rows => {
                             rows.forEach(element => {
-                                msg_functions.sendToIndividual(element['token'], message, username);
+                                msg_functions.sendToIndividual(element['token'], message, username, chatId);
                             });
                             res.send({
                                 success: true
@@ -65,7 +65,7 @@ router.post("/send", (req, res) => {
 router.post("/getAll", (req, res) => {
     let chatId = req.body['chatId'];
 
-    let query = `SELECT Members.Email, Messages.Message,
+    let query = `SELECT Members.Username, Messages.Message,
                 to_char(Messages.Timestamp AT TIME ZONE 'PDT', 'YYYY-MM-DD HH24:MI:SS.US' )
                 AS Timestamp FROM Messages
                 INNER JOIN Members ON Messages.MemberId=Members.MemberId
