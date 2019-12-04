@@ -71,7 +71,7 @@ router.post('/add', (req, res) => {
 router.post('/search', (req, res) => {
     let username = req.body['username'];
 
-    let query = `SELECT MemberId, FirstName, LastName, Username
+    let query = `SELECT MemberId, FirstName, LastName, Username, ProfileURI
                 FROM Members
                 WHERE Username=$1`
     db.one(query, [username])
@@ -134,7 +134,7 @@ router.post('/confirm', (req, res) => {
 router.post('/requestsReceived', (req, res) => {
     let memberId = req.body['memberId'];
 
-    let query = `SELECT MemberId, FirstName, LastName, Username
+    let query = `SELECT MemberId, FirstName, LastName, Username, ProfileURI
                 FROM Members
                 INNER JOIN Contacts
                 ON MemberId=memberId_A
@@ -157,7 +157,7 @@ router.post('/requestsReceived', (req, res) => {
 router.post('/requestsSent', (req, res) => {
     let memberId = req.body['memberId'];
 
-    let query = `SELECT MemberId, FirstName, LastName, Username
+    let query = `SELECT MemberId, FirstName, LastName, Username, ProfileURI
                 FROM Members
                 INNER JOIN Contacts
                 ON MemberId=memberId_B
@@ -182,7 +182,7 @@ router.post('/getAll', (req, res) => {
     // let chatId = req.body['chatId'];
     let memberId = req.body['memberId'];
 
-    let query = `SELECT memberId, FirstName, LastName, Username
+    let query = `SELECT memberId, FirstName, LastName, Username, ProfileURI
                 FROM Members
                 WHERE memberId IN (SELECT memberId_A
                                     FROM Contacts
@@ -213,7 +213,7 @@ router.post('/getFriend', (req, res) => {
     let memberIdUser = req.body['memberIdUser'];
     let memberIdOther = req.body['memberIdOther'];
 
-    let query = `SELECT memberId, FirstName, LastName, Username, Status.Verified
+    let query = `SELECT memberId, FirstName, LastName, Username, Status.Verified, ProfileURI
                 FROM Members LEFT JOIN (SELECT * From Contacts
                                         WHERE MemberId_B=$1
                                         AND MemberId_A=$2) AS Status
