@@ -243,7 +243,7 @@ router.post('/getPerson', (req, res) => {
                 WHERE (memberId_A=$1 AND memberId_B=$2)
                 OR (memberId_A=$2 AND memberId_B=$1)
                 LIMIT 1`;
-    let query = `SELECT memberId, FirstName, LastName, Username
+    let query = `SELECT memberId, FirstName, LastName, Username, ProfileURI
                 FROM Members
                 WHERE MemberId=$1`;
     db.oneOrNone(check, [memberIdUser, memberIdOther])
