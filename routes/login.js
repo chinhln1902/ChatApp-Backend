@@ -24,7 +24,7 @@ router.post('/', (req, res) => {
     let wasSuccessful = false;
     if (email && theirPw) {
         //Using the 'one' method means that only one row should be returned
-        db.one('SELECT MemberId, Password, Salt, Verification, ProfileURI FROM Members WHERE Email=$1', [email])
+        db.one('SELECT * FROM Members WHERE Email=$1', [email])
             .then(row => { //If successful, run function passed into .then()
                 let salt = row['salt'];
                 //Retrieve our copy of the password
@@ -52,6 +52,9 @@ router.post('/', (req, res) => {
                             success: true,
                             message: 'Authentication successful!',
                             memberid: row['memberid'],
+                            firstname: row['firstname'],
+                            lastname: row['lastname'],
+                            username: row['username'],
                             profileuri: row['profileuri'],
                             token: token
                         });
@@ -92,7 +95,7 @@ router.post('/pushy', (req, res) => {
     let wasSuccessful = false;
     if (email && theirPw && pushyToken) {
         //Using the 'one' method means that only one row should be returned
-        db.one('SELECT MemberID, Password, Salt, Verification, ProfileURI FROM Members WHERE Email=$1', [email])
+        db.one('SELECT * FROM Members WHERE Email=$1', [email])
             .then(row => { //If successful, run function passed into .then()
                 let salt = row['salt'];
                 //Retrieve our copy of the password
@@ -117,6 +120,9 @@ router.post('/pushy', (req, res) => {
                                 success: true,
                                 message: 'Authentication successful!',
                                 memberid: row['memberid'],
+                                firstname: row['firstname'],
+                                lastname: row['lastname'],
+                                username: row['username'],
                                 profileuri: row['profileuri'],
                                 token: token
                             });
