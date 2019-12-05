@@ -11,7 +11,7 @@ router.use(bodyParser.json());
 router.post("/", (req, res) => {
   let memberId = req.body["memberId"];
 
-  let query = `Select Chats.ChatID, Chats.Name, RecentMessage.Message, RecentMessage.Timestamp From Chats
+  let query = `Select Chats.ChatID, RecentMessage.Message, RecentMessage.Timestamp From Chats
   Inner Join ChatMembers On Chats.ChatId = ChatMembers.ChatId
   Left Join (Select Distinct On (ChatId) ChatId, Message, Timestamp From Messages Order By ChatId, Timestamp DESC) As RecentMessage
   On Chats.ChatID = RecentMessage.ChatID
