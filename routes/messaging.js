@@ -70,7 +70,7 @@ router.post("/getAll", (req, res) => {
                 AS Timestamp FROM Messages
                 INNER JOIN Members ON Messages.MemberId=Members.MemberId
                 WHERE ChatId=$1
-                ORDER BY Timestamp DESC`
+                ORDER BY Timestamp ASC`
     db.manyOrNone(query, [chatId])
         .then((rows) => {
             res.send({
