@@ -53,7 +53,7 @@ router.post('/add', (req, res) => {
         .then(() => {
             db.none(query, [memberIdUser, memberIdOther])
                 .then(() => {
-                    db.one(info, [memberIdOther])
+                    db.one(info, [memberIdPerson])
                         .then(person => {
                             db.one('SELECT * FROM Push_Token WHERE MemberID=$1', [memberIdOther])
                                 .then(row => {
@@ -91,11 +91,12 @@ router.post('/add', (req, res) => {
 // Searches for user by username
 router.post('/search', (req, res) => {
     let username = req.body['username'];
+    let memberId = req.body['memberId'];
 
     let query = `SELECT MemberId, FirstName, LastName, Username, ProfileURI
                 FROM Members
-                WHERE Username=$1`
-    db.one(query, [username])
+                WHERE Username=$1 AND MemberId<>$2`
+    db.one(query, [username, memberId])
         .then((row) => {
             res.send({
                 success: true,

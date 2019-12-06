@@ -37,16 +37,56 @@ router.post("/", (req, res) => {
       success: false,
       message: "missing memberId"
     });
-  } 
+  }
 });
 
-router.post('/getIndividualChat', (req, res) => {
-  
-});
+// router.post('/getIndividualChat', (req, res) => {
+//   let memberIdOne = req.body["memberIdOne"];
+//   let memberIdTwo = req.body['memberIdTwo'];
+//   if (memberIdOne && memberIdTwo) {
+//     let check = `SELECT *
+//               FROM(
+//                 SELECT ChatId,
+//                 array_to_string(array_agg(distinct MemberId),',') AS Members
+//                 FROM ChatMembers
+//                 GROUP BY ChatId) AS MemberCount
+//               WHERE Members='$1,$2' OR Members='$2,$1'`
+
+//     let getNames = `SELECT
+//                     array_to_string(array_agg(distinct Username),' and ') AS ChatName
+//                     FROM Members
+//                     Where MemberID=$1 OR MemberID=$2`
+//     db.oneOrNone(check, [memberIdOne, memberIdTwo])
+//       .then((row) => {
+//         if (row == null) {
+//           db.one(getNames, [memberIdOne, memberIdTwo])
+//           .then((row2) => {
+
+//           }).catch((err) => {
+
+//           }) 
+//         } else {
+
+//         }
+//         res.send({
+//           success: true,
+//           message: "chat exists"
+//         })
+//       }).catch((err) => {
+//         res.send({
+//           success: false,
+//           error: err
+//         })
+//       });
+//   }
+
+
+
+// });
 
 router.post('/createChat', (req, res) => {
   let chatName = req.body["chatName"];
-  
+
   let query = `INSERT INTO Chats(Name) VALUES ($1)`
   db.none(query, [chatName])
     .then(() => {
@@ -104,11 +144,11 @@ router.get('/getNewestChatId', (req, res) => {
         success: true,
         chatid: data.chatid
       })
-      }).catch((err) => {
-        res.send({
-          success: false,
-          error: err
-        });
+    }).catch((err) => {
+      res.send({
+        success: false,
+        error: err
+      });
     })
 });
 module.exports = router;
