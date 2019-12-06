@@ -49,7 +49,7 @@ router.post('/add', (req, res) => {
         .then(() => {
             db.none(query, [memberIdUser, memberIdOther])
                 .then(() => {
-                    db.oneOrNone('SELECT * FROM Push_Token WHERE MemberID = $1', [memberIdOther])
+                    db.oneOrNone('SELECT * FROM Push_Token WHERE MemberID=$1', [memberIdOther])
                         .then(row => {
                             msg_functions.sendToReceiver(row['token'], memberIdUser);
                             res.send({
