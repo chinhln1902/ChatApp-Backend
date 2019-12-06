@@ -29,7 +29,7 @@ function sendToIndividual(token, msg, from, chatid, senderId) {
     //build the message for FCM to send
     var data = {
         "type": "msg",
-        "sender": from,
+        "sender1": from,
         "message1": msg,
         "chatid": chatid,
         "senderid": senderId
