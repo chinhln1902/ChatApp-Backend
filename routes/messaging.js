@@ -37,7 +37,7 @@ router.post("/send", (req, res) => {
                     db.manyOrNone('SELECT * FROM Push_Token WHERE MemberID IN (SELECT MemberID FROM ChatMembers Where ChatID=$1)', [chatId])
                         .then(rows => {
                             rows.forEach(element => {
-                                msg_functions.sendToIndividual(element['token'], message, username, senderId, senderId);
+                                msg_functions.sendToIndividual(element['token'], message, username, chatId, senderId);
                             });
                             res.send({
                                 success: true,
