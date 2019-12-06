@@ -4,6 +4,8 @@ const express = require('express');
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
 
+let msg_functions = require('../utilities/utils').messaging;
+
 var router = express.Router();
 
 const bodyParser = require("body-parser");
@@ -49,26 +51,26 @@ router.post('/add', (req, res) => {
         .then(() => {
             db.none(query, [memberIdUser, memberIdOther])
                 .then(() => {
-                    db.oneOrNone('SELECT * FROM Push_Token WHERE MemberID=$1', [memberIdOther])
+                    db.one('SELECT * FROM Push_Token WHERE MemberID=$1', [memberIdOther])
                         .then(row => {
                             msg_functions.sendToReceiver(row['token'], memberIdUser);
                             res.send({
                                 success: true,
                                 message: "successfully connected"
                             });
-                        }).catch(err => {
+                        }).catch(err3 => {
                             res.send({
                                 success: false,
                                 error: "friend added but notification could not be sent",
                             });
                         })
-                }).catch(err => {
+                }).catch(err2 => {
                     res.send({
                         success: false,
-                        error: err
+                        error: err2
                     })
                 });
-        }).catch((err) => {
+        }).catch((err1) => {
             res.send({
                 success: false,
                 message: "already connected"
