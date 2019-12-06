@@ -25,14 +25,15 @@ function sendToTopic(topic, msg, from, chatid, senderid) {
     });
 }
 //use to send message to a specific client by the token
-function sendToIndividual(token, msg, from, chatid, senderid) {
+function sendToIndividual(token, msg, from, chatid, senderid, profileuri) {
     //build the message for FCM to send
     var data = {
         "type": "msg",
         "sender": from,
         "message": msg,
         "senderid": senderid,
-        "chatid": chatid
+        "chatid": chatid,
+        "profileuri": profileuri
     };
     console.log(data);
     // Send push notification via the Send Notifications API

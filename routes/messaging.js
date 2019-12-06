@@ -24,7 +24,7 @@ router.post("/send", (req, res) => {
         });
         return;
     }
-    let selectSender = "SELECT MemberId, Username FROM Members WHERE memberId = $1";
+    let selectSender = "SELECT MemberId, Username, ProfileUri FROM Members WHERE memberId = $1";
     //add the message to the database
     let insert = "INSERT INTO Messages(ChatId, Message, MemberId) SELECT $1, $2, MemberId FROM Members WHERE memberId=$3";
     db.none(insert, [chatId, message, memberId])
@@ -33,11 +33,12 @@ router.post("/send", (req, res) => {
                 .then(data => {
                     let username = data['username'];
                     let senderId = data['memberid'];
+                    let profileuri = data['profileuri'];
                     //send a notification of this message to ALL members with registered tokens
                     db.manyOrNone('SELECT * FROM Push_Token WHERE MemberID IN (SELECT MemberID FROM ChatMembers Where ChatID=$1)', [chatId])
                         .then(rows => {
                             rows.forEach(element => {
-                                msg_functions.sendToIndividual(element['token'], message, username, chatId, senderId);
+                                msg_functions.sendToIndividual(element['token'], message, username, chatId, senderId, profileuri);
                             });
                             res.send({
                                 success: true,
