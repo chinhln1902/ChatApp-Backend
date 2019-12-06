@@ -31,8 +31,8 @@ function sendToIndividual(token, msg, from, chatid, senderId) {
         "type": "msg",
         "sender": from,
         "message": msg,
-        "chatid": chatid,
-        "senderid": senderId
+        "senderid": senderId,
+        "chatid": chatid
     };
     console.log(data);
     // Send push notification via the Send Notifications API
