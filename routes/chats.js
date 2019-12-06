@@ -40,49 +40,54 @@ router.post("/", (req, res) => {
   }
 });
 
-// router.post('/getIndividualChat', (req, res) => {
-//   let memberIdOne = req.body["memberIdOne"];
-//   let memberIdTwo = req.body['memberIdTwo'];
-//   if (memberIdOne && memberIdTwo) {
-//     let check = `SELECT *
-//               FROM(
-//                 SELECT ChatId,
-//                 array_to_string(array_agg(distinct MemberId),',') AS Members
-//                 FROM ChatMembers
-//                 GROUP BY ChatId) AS MemberCount
-//               WHERE Members='$1,$2' OR Members='$2,$1'`
+router.post('/getIndividualChat', (req, res) => {
+  let memberIdOne = req.body["memberIdOne"];
+  let memberIdTwo = req.body['memberIdTwo'];
+  if (memberIdOne && memberIdTwo) {
+    let check = `SELECT *
+              FROM(
+                SELECT ChatId,
+                array_to_string(array_agg(distinct MemberId),',') AS Members
+                FROM ChatMembers
+                GROUP BY ChatId) AS MemberCount
+              WHERE Members='$1,$2' OR Members='$2,$1'`
 
-//     let getNames = `SELECT
-//                     array_to_string(array_agg(distinct Username),' and ') AS ChatName
-//                     FROM Members
-//                     Where MemberID=$1 OR MemberID=$2`
-//     db.oneOrNone(check, [memberIdOne, memberIdTwo])
-//       .then((row) => {
-//         if (row == null) {
-//           db.one(getNames, [memberIdOne, memberIdTwo])
-//           .then((row2) => {
+    let getNames = `SELECT
+                    array_to_string(array_agg(distinct Username),' and ') AS ChatName
+                    FROM Members
+                    Where MemberID=$1 OR MemberID=$2`
+    db.oneOrNone(check, [memberIdOne, memberIdTwo])
+      .then((row) => {
+        if (row == null) {
+          db.one(getNames, [memberIdOne, memberIdTwo])
+            .then((row2) => {
+              res.send({
+                success: false,
+                chatname: getNames['chatname']
+              })
+            }).catch((err2) => {
+              res.send({
+                success: false,
+                err: err2
+              })
+            })
+        } else {
+          res.send({
+            success: true,
+            chatid: row['chatid']
+          })
+        }
+      }).catch((err) => {
+        res.send({
+          success: false,
+          error: err
+        })
+      });
+  }
 
-//           }).catch((err) => {
-
-//           }) 
-//         } else {
-
-//         }
-//         res.send({
-//           success: true,
-//           message: "chat exists"
-//         })
-//       }).catch((err) => {
-//         res.send({
-//           success: false,
-//           error: err
-//         })
-//       });
-//   }
 
 
-
-// });
+});
 
 router.post('/createChat', (req, res) => {
   let chatName = req.body["chatName"];
