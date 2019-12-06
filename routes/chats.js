@@ -50,13 +50,16 @@ router.post('/getIndividualChat', (req, res) => {
                 array_to_string(array_agg(distinct MemberId),',') AS Members
                 FROM ChatMembers
                 GROUP BY ChatId) AS MemberCount
-              WHERE Members='$1,$2' OR Members='$2,$1'`
+              WHERE Members=` + "'" + memberIdOne + "," + memberIdTwo + "'OR Members='" 
+              + memberIdTwo + "," + memberIdOne + "'"
+
+        
 
     let getNames = `SELECT
                     array_to_string(array_agg(distinct Username),' and ') AS ChatName
                     FROM Members
                     Where MemberID=$1 OR MemberID=$2`
-    db.oneOrNone(check, [memberIdOne, memberIdTwo])
+    db.oneOrNone(check)
       .then((row1) => {
         if (row1 == null) {
           db.one(getNames, [memberIdOne, memberIdTwo])
