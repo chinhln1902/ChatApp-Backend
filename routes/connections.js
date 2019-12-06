@@ -47,21 +47,31 @@ router.post('/add', (req, res) => {
 
     let query = `INSERT INTO Contacts(memberId_A, memberId_B)
                 VALUES($1, $2)`
+
+    let info = 'SELECT * FROM Members WHERE MemberID=$1'
     db.none(check, [memberIdUser, memberIdOther])
         .then(() => {
             db.none(query, [memberIdUser, memberIdOther])
                 .then(() => {
-                    db.one('SELECT * FROM Push_Token WHERE MemberID=$1', [memberIdOther])
-                        .then(row => {
-                            msg_functions.sendToReceiver(row['token'], memberIdUser);
-                            res.send({
-                                success: true,
-                                message: "successfully connected"
-                            });
-                        }).catch(err3 => {
+                    db.one(info, [memberIdOther])
+                        .then(person => {
+                            db.one('SELECT * FROM Push_Token WHERE MemberID=$1', [memberIdOther])
+                                .then(row => {
+                                    msg_functions.sendToReceiver(row['token'], person['username'], memberIdUser, person['profileuri']);
+                                    res.send({
+                                        success: true,
+                                        message: "successfully connected"
+                                    });
+                                }).catch(err3 => {
+                                    res.send({
+                                        success: false,
+                                        error: "friend added but notification could not be sent",
+                                    });
+                                });
+                        }).catch(err4 => {
                             res.send({
                                 success: false,
-                                error: "friend added but notification could not be sent",
+                                message: err4
                             });
                         })
                 }).catch(err2 => {

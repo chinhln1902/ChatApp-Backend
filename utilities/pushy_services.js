@@ -49,11 +49,13 @@ function sendToIndividual(token, msg, from, chatid, senderid, profileuri) {
 }
 
 //use to send request notification to a specific client by the token
-function sendToReceiver(token, memberid) {
+function sendToReceiver(token, username, memberid, profileuri) {
     //build the message for FCM to send
     var data = {
         "type": "request",
-        "memberid": memberid
+        "username": username,
+        "memberid": memberid,
+        "profileuri": profileuri
     };
     console.log(data);
     // Send push notification via the Send Notifications API
