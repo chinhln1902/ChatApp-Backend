@@ -49,10 +49,19 @@ router.post('/add', (req, res) => {
         .then(() => {
             db.none(query, [memberIdUser, memberIdOther])
                 .then(() => {
-                    res.send({
-                        success: true,
-                        message: "successfully connected"
-                    })
+                    db.oneOrNone('SELECT * FROM Push_Token WHERE MemberID = $1', [memberIdOther])
+                        .then(row => {
+                            msg_functions.sendToReceiver(row['token'], memberIdUser);
+                            res.send({
+                                success: true,
+                                message: "successfully connected"
+                            });
+                        }).catch(err => {
+                            res.send({
+                                success: false,
+                                error: "friend added but notification could not be sent",
+                            });
+                        })
                 }).catch(err => {
                     res.send({
                         success: false,
