@@ -53,7 +53,7 @@ router.post('/add', (req, res) => {
         .then(() => {
             db.none(query, [memberIdUser, memberIdOther])
                 .then(() => {
-                    db.one(info, [memberIdPerson])
+                    db.one(info, [memberIdUser])
                         .then(person => {
                             db.one('SELECT * FROM Push_Token WHERE MemberID=$1', [memberIdOther])
                                 .then(row => {
