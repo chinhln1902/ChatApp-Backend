@@ -40,6 +40,10 @@ router.post("/", (req, res) => {
   } 
 });
 
+router.post('/getIndividualChat', (req, res) => {
+  
+});
+
 router.post('/createChat', (req, res) => {
   let chatName = req.body["chatName"];
   
