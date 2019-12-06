@@ -4,6 +4,8 @@ const express = require('express');
 //Create connection to Heroku Database
 let db = require('../utilities/utils').db;
 
+let msg_functions = require('../utilities/utils').messaging;
+
 var router = express.Router();
 
 const bodyParser = require("body-parser");
