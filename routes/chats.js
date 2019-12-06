@@ -57,13 +57,13 @@ router.post('/getIndividualChat', (req, res) => {
                     FROM Members
                     Where MemberID=$1 OR MemberID=$2`
     db.oneOrNone(check, [memberIdOne, memberIdTwo])
-      .then((row) => {
-        if (row == null) {
+      .then((row1) => {
+        if (row1 == null) {
           db.one(getNames, [memberIdOne, memberIdTwo])
             .then((row2) => {
               res.send({
                 success: false,
-                chatname: getNames['chatname']
+                chatname: row2['chatname']
               })
             }).catch((err2) => {
               res.send({
@@ -74,13 +74,13 @@ router.post('/getIndividualChat', (req, res) => {
         } else {
           res.send({
             success: true,
-            chatid: row['chatid']
+            chatid: row1['chatid']
           })
         }
-      }).catch((err) => {
+      }).catch((err2) => {
         res.send({
           success: false,
-          error: err
+          error: err2
         })
       });
   }
