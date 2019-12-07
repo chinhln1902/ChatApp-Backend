@@ -29,13 +29,13 @@ router.post("/confirm", (req, res) => {
     let query = `SELECT * FROM MEMBERS WHERE Email=$1 AND Verification=0`;
     db.one(query, [email])
         .then((row) => {
+            let token = jwt.sign({ username: email },
+                config.secret,
+                {
+                    expiresIn: '24h' // expires in 24 hours
+                }
+            );
             if (row['verifycode'] == inputCode) {
-                let token = jwt.sign({ username: email },
-                    config.secret,
-                    {
-                        expiresIn: '24h' // expires in 24 hours
-                    }
-                );
                 db.none('UPDATE Members SET Verification=1 WHERE Email=$1', [email])
                     .then(() => {
                         res.send({
@@ -57,7 +57,8 @@ router.post("/confirm", (req, res) => {
             } else {
                 res.send({
                     success: false,
-                    error: "verify code does not match"
+                    error: "verify code does not match",
+                    token: token
                 });
             }
         }).catch((err) => {
