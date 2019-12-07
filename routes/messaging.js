@@ -67,6 +67,8 @@ router.post("/send", (req, res) => {
 router.post("/getAll", (req, res) => {
     let chatId = req.body['chatId'];
 
+    let getChat = 'SELECT Name FROM Chats WHERE ChatId=$1'
+
     let query = `SELECT Members.Username, Members.MemberId, Messages.Message,
                 to_char(Messages.Timestamp AT TIME ZONE 'PDT', 'YYYY-MM-DD HH24:MI:SS.US' )
                 AS Timestamp, Members.ProfileUri FROM Messages
@@ -75,10 +77,19 @@ router.post("/getAll", (req, res) => {
                 ORDER BY Timestamp ASC`
     db.manyOrNone(query, [chatId])
         .then((rows) => {
-            res.send({
-                success: true,
-                messages: rows
-            })
+            db.one(getChat, [chatId])
+                .then((row) => {
+                    res.send({
+                        success: true,
+                        messages: rows,
+                        chatname: row['name']
+                    })
+                }).catch((err2) => {
+                    res.send({
+                        success: false,
+                        error: err2
+                    })
+                });
         }).catch((err) => {
             res.send({
                 success: false,
