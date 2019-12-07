@@ -26,17 +26,27 @@ router.post("/confirm", (req, res) => {
         return;
     }
     //add the message to the database
-    let query = `SELECT MemberId, VerifyCode, ProfileURI FROM MEMBERS WHERE Email=$1 AND Verification=0`;
+    let query = `SELECT * FROM MEMBERS WHERE Email=$1 AND Verification=0`;
     db.one(query, [email])
         .then((row) => {
             if (row['verifycode'] == inputCode) {
+                let token = jwt.sign({ username: email },
+                    config.secret,
+                    {
+                        expiresIn: '24h' // expires in 24 hours
+                    }
+                );
                 db.none('UPDATE Members SET Verification=1 WHERE Email=$1', [email])
                     .then(() => {
                         res.send({
                             success: true,
-                            message: "successfully verified",
+                            message: 'Authentication successful!',
                             memberid: row['memberid'],
-                            profileuri: row['profileuri']
+                            profileuri: row['profileuri'],
+                            firstname: row['firstname'],
+                            lastname: row['lastname'],
+                            username: row['username'],
+                            token: token
                         });
                     }).catch(err => {
                         res.send({
@@ -70,12 +80,18 @@ router.post("/confirm/pushy", (req, res) => {
         return;
     }
     //add the message to the database
-    let query = `SELECT MemberId, VerifyCode, ProfileURI FROM MEMBERS WHERE Email=$1 AND Verification=0`;
+    let query = `SELECT * FROM MEMBERS WHERE Email=$1 AND Verification=0`;
     db.one(query, [email])
         .then((row1) => {
             if (row1['verifycode'] == inputCode) {
                 db.none('UPDATE Members SET Verification=1 WHERE Email=$1', [email])
                     .then(() => {
+                        let token = jwt.sign({ username: email },
+                            config.secret,
+                            {
+                                expiresIn: '24h' // expires in 24 hours
+                            }
+                        );
                         let params = [row1['memberid'], pushyToken];
                         db.manyOrNone('INSERT INTO Push_Token (memberId, token) VALUES ($1, $2) ON CONFLICT(memberId) DO UPDATE SET token = $2; ', params)
                             .then(row2 => {
@@ -84,7 +100,11 @@ router.post("/confirm/pushy", (req, res) => {
                                     success: true,
                                     message: 'Authentication successful!',
                                     memberid: row1['memberid'],
-                                    profileuri: row1['profileuri']
+                                    profileuri: row1['profileuri'],
+                                    firstname: row1['firstname'],
+                                    lastname: row1['lastname'],
+                                    username: row1['username'],
+                                    token: token
                                 });
                             })
                             .catch(err3 => {

@@ -104,6 +104,9 @@ router.post('/pushy', (req, res) => {
                 let theirSaltedHash = getHash(theirPw, salt);
                 //Did our salted hash match their salted hash?
                 let wasCorrectPw = ourSaltedHash === theirSaltedHash;
+
+                let verified = row['verification'];
+                
                 if (wasCorrectPw) {
                     //credentials match. get a new JWT
                     let token = jwt.sign({ username: email },
@@ -112,31 +115,39 @@ router.post('/pushy', (req, res) => {
                             expiresIn: '24h' // expires in 24 hours
                         }
                     );
-                    let params = [row['memberid'], pushyToken];
-                    db.manyOrNone('INSERT INTO Push_Token (memberId, token) VALUES ($1, $2) ON CONFLICT(memberId) DO UPDATE SET token = $2; ', params)
-                        .then(data => {
-                            //package and send the results
-                            res.json({
-                                success: true,
-                                message: 'Authentication successful!',
-                                memberid: row['memberid'],
-                                firstname: row['firstname'],
-                                lastname: row['lastname'],
-                                username: row['username'],
-                                profileuri: row['profileuri'],
-                                token: token
+                    if (verified) {
+                        let params = [row['memberid'], pushyToken];
+                        db.manyOrNone('INSERT INTO Push_Token (memberId, token) VALUES ($1, $2) ON CONFLICT(memberId) DO UPDATE SET token = $2; ', params)
+                            .then(data => {
+                                //package and send the results
+                                res.json({
+                                    success: true,
+                                    message: 'Authentication successful!',
+                                    memberid: row['memberid'],
+                                    firstname: row['firstname'],
+                                    lastname: row['lastname'],
+                                    username: row['username'],
+                                    profileuri: row['profileuri'],
+                                    token: token
+                                });
+                            })
+                            .catch(err => {
+                                console.log("error on insert");
+                                console.log(err);
+                                //If anything happened, it wasn't successful
+                                //some error on pushy token insert. See console logs
+                                res.send({
+                                    success: false,
+                                    error: err
+                                });
                             });
-                        })
-                        .catch(err => {
-                            console.log("error on insert");
-                            console.log(err);
-                            //If anything happened, it wasn't successful
-                            //some error on pushy token insert. See console logs
-                            res.send({
-                                success: false,
-                                error: err
-                            });
+                    } else {
+                        res.json({
+                            success: false,
+                            error: "not verified",
                         });
+                    }
+
                 } else {
                     //credentials dod not match
                     res.send({
