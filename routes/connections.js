@@ -14,7 +14,6 @@ router.use(bodyParser.json());
 
 //Get all of the messages from a chat session with id chatid
 router.post('/remove', (req, res) => {
-    // let chatId = req.body['chatId'];
     let memberIdUser = req.body['memberIdUser'];
     let memberIdOther = req.body['memberIdOther'];
 
@@ -153,6 +152,7 @@ router.post('/confirm', (req, res) => {
 //         });
 // });
 
+// Get all request received for current user
 router.post('/requestsReceived', (req, res) => {
     let memberId = req.body['memberId'];
 
@@ -176,6 +176,7 @@ router.post('/requestsReceived', (req, res) => {
         });
 });
 
+// Get all requests sent by current user
 router.post('/requestsSent', (req, res) => {
     let memberId = req.body['memberId'];
 

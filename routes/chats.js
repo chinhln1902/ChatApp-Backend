@@ -8,6 +8,7 @@ var router = express.Router();
 const bodyParser = require("body-parser");
 router.use(bodyParser.json());
 
+//get all chats that current user is associated with
 router.post("/", (req, res) => {
   let memberId = req.body["memberId"];
 
@@ -40,6 +41,7 @@ router.post("/", (req, res) => {
   }
 });
 
+//check if individual chat between two users exists
 router.post('/getIndividualChat', (req, res) => {
   let memberIdOne = req.body["memberIdOne"];
   let memberIdTwo = req.body['memberIdTwo'];
@@ -52,8 +54,6 @@ router.post('/getIndividualChat', (req, res) => {
                 GROUP BY ChatId) AS MemberCount
               WHERE Members=` + "'" + memberIdOne + "," + memberIdTwo + "'OR Members='" 
               + memberIdTwo + "," + memberIdOne + "'"
-
-        
 
     let getNames = `SELECT
                     array_to_string(array_agg(distinct Username),' and ') AS ChatName
@@ -87,11 +87,9 @@ router.post('/getIndividualChat', (req, res) => {
         })
       });
   }
-
-
-
 });
 
+//Create new chat
 router.post('/createChat', (req, res) => {
   let chatName = req.body["chatName"];
 
@@ -142,6 +140,7 @@ router.post('/addFriendToChat', (req, res) => {
     });
 });
 
+//Get ChatID of newest chat created
 router.get('/getNewestChatId', (req, res) => {
   let query = `SELECT ChatID 
                 FROM CHATS

@@ -12,6 +12,7 @@ const ADMIN_PASSWORD_KEY = process.env.ADMIN_PASSWORD_KEY;
 
 var nodemailer = require('nodemailer');
 
+//Send email to new user with verification code to verify account
 function sendEmail(receiver, subj, message) {
     //research nodemailer for sending email from node.
     // https://nodemailer.com/about/
