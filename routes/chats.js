@@ -52,8 +52,10 @@ router.post('/getIndividualChat', (req, res) => {
                 array_to_string(array_agg(distinct MemberId),',') AS Members
                 FROM ChatMembers
                 GROUP BY ChatId) AS MemberCount
-              WHERE Members=` + "'" + memberIdOne + "," + memberIdTwo + "'OR Members='" 
-              + memberIdTwo + "," + memberIdOne + "'"
+              WHERE Members=` + "'" + memberIdOne + "," + memberIdTwo + "'OR Members='"
+      + memberIdTwo + "," + memberIdOne + "'"
+
+    let chatName = 'SELECT * FROM Chats WHERE ChatId=$1'
 
     let getNames = `SELECT
                     array_to_string(array_agg(distinct Username),' and ') AS ChatName
@@ -75,10 +77,19 @@ router.post('/getIndividualChat', (req, res) => {
               })
             })
         } else {
-          res.send({
-            success: true,
-            chatid: row1['chatid']
-          })
+          db.one(chatName, [row1['chatid']])
+            .then((row3) => {
+              res.send({
+                success: true,
+                chatid: row1['chatid'],
+                chatname: row3['name']
+              })
+            }).catch((err3) => {
+              res.send({
+                success: false,
+                error: err3
+              })
+            });
         }
       }).catch((err2) => {
         res.send({
