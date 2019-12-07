@@ -62,6 +62,7 @@ router.post('/', (req, res) => {
                         res.json({
                             success: false,
                             error: "not verified",
+                            token: token
                         });
                     }
                 } else {
@@ -145,6 +146,7 @@ router.post('/pushy', (req, res) => {
                         res.json({
                             success: false,
                             error: "not verified",
+                            token: token
                         });
                     }
 
