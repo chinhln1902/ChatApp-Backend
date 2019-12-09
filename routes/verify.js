@@ -121,6 +121,11 @@ router.post("/confirm/pushy", (req, res) => {
                             error: err2
                         });
                     })
+            } else {
+                res.send({
+                    success: false,
+                    error: "verify code does not match"
+                });
             }
         }).catch((err1) => {
             res.send({
